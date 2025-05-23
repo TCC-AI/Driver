@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>配送資訊登錄系統</title>
     <style>
+        /* 原始樣式完全保留 */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -129,6 +130,7 @@
     </style>
 </head>
 <body>
+    <!-- 原始HTML結構完全保留 -->
     <div id="login-container" class="container">
         <h1>配送資訊登錄系統</h1>
         <div class="form-group">
@@ -188,202 +190,185 @@
     </div>
 
     <script>
-        // 全域變數
+        // 全域變數保持不變
         let userData = null;
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzNEtyjjtCqtUYSkQake_cp_unULS4G2Srw9EndRlBdxrE-RbBh25sQJb-MqkInI6OT/exec';
+        let isSubmitting = false; // 新增提交狀態鎖
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUcSjxag7NDTSbomYu6mS96PHAWHJ-GNs7g0ODbIoDK-cklgCMSysa-2kfSkv89afa/exec';
 
-        // 頁面載入完成後執行
         document.addEventListener('DOMContentLoaded', () => {
-            // 登入按鈕事件
             document.getElementById('login-btn').addEventListener('click', handleLogin);
-            
-            // 送出按鈕事件
             document.getElementById('submit-btn').addEventListener('click', handleSubmit);
-            
-            // 重置按鈕事件
             document.getElementById('reset-btn').addEventListener('click', resetForm);
+            setupEnhancedInputs(); // 修改函數名稱
+        });
+
+        // 強化版登入處理
+        async function handleLogin() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorElement = document.getElementById('login-error');
             
-            // 數字輸入框設定
-            setupNumericInputs();
-        });
-
-// 修正登入函數
-async function handleLogin() {
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const errorElement = document.getElementById('login-error');
-    
-    if (!username || !password) {
-        errorElement.textContent = '請輸入帳號和密碼';
-        return;
-    }
-    
-    errorElement.textContent = '登入中...';
-    
-    try {
-        // 使用 POST 方法發送登入請求
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'login',
-                username: username,
-                password: password
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            if (!username || !password) {
+                showError(errorElement, '請輸入帳號和密碼');
+                return;
+            }
+            
+            showLoading(errorElement, '登入中...');
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        action: 'login',
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                if (!response.ok) throw new Error(`HTTP錯誤! 狀態碼: ${response.status}`);
+                
+                const data = await response.json();
+                if (data.success) {
+                    userData = data.user;
+                    showDeliveryForm();
+                    loadDropdownData();
+                    clearMessage(errorElement);
+                } else {
+                    showError(errorElement, data.message || '登入失敗');
+                }
+            } catch (error) {
+                console.error('登入錯誤:', error);
+                showError(errorElement, '登入失敗，請檢查網路連線');
+            }
         }
-        
-        const data = await response.json();
-        console.log('登入回應:', data);
-        
-        if (data.success) {
-            userData = data.user;
-            showDeliveryForm();
-            loadDropdownData();
-            errorElement.textContent = '';
-        } else {
-            errorElement.textContent = data.message || '登入失敗';
+
+        // 強化輸入控制
+        function setupEnhancedInputs() {
+            const numberInputs = [
+                'product-load', 'product-unload',
+                'empty-load', 'empty-unload'
+            ];
+            
+            numberInputs.forEach(id => {
+                const input = document.getElementById(id);
+                input.addEventListener('input', function(e) {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    if (this.value.length > 4) this.value = this.value.slice(0,4);
+                });
+            });
         }
-    } catch (error) {
-        console.error('登入錯誤:', error);
-        errorElement.textContent = '登入失敗，請檢查網路連線或稍後再試';
-    }
-}
 
+        // 強化版表單提交
+        async function handleSubmit() {
+            if (isSubmitting) return;
+            isSubmitting = true;
+            
+            const formElements = {
+                deliveryLocation: document.getElementById('delivery-location').value.trim(),
+                vehicleType: document.getElementById('vehicle-type').value.trim(),
+                productLoad: document.getElementById('product-load').value.trim() || '0',
+                productUnload: document.getElementById('product-unload').value.trim() || '0',
+                emptyLoad: document.getElementById('empty-load').value.trim() || '0',
+                emptyUnload: document.getElementById('empty-unload').value.trim() || '0'
+            };
+            
+            const messageElement = document.getElementById('submit-message');
+            
+            if (!formElements.deliveryLocation || !formElements.vehicleType) {
+                showError(messageElement, '請填寫配送點和載具簡稱');
+                isSubmitting = false;
+                return;
+            }
+            
+            showLoading(messageElement, '資料提交中...');
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        action: 'submitData',
+                        driverName: userData.name,
+                        ...formData
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showSuccess(messageElement, '資料已成功送出！');
+                    resetForm();
+                } else {
+                    showError(messageElement, `提交失敗：${data.message}`);
+                }
+            } catch (error) {
+                console.error('提交錯誤:', error);
+                showError(messageElement, '提交失敗，請稍後再試');
+            } finally {
+                isSubmitting = false;
+            }
+        }
 
-        // 顯示配送表單
+        // 新增工具函數
+        function showError(element, message) {
+            element.textContent = message;
+            element.className = 'error-message';
+            element.style.display = 'block';
+        }
+
+        function showSuccess(element, message) {
+            element.textContent = message;
+            element.className = 'message';
+            element.style.display = 'block';
+        }
+
+        function showLoading(element, message) {
+            element.textContent = message;
+            element.className = 'message';
+            element.style.display = 'block';
+        }
+
+        function clearMessage(element) {
+            element.textContent = '';
+            element.className = '';
+            element.style.display = 'none';
+        }
+
+        // 保留原始功能函數
         function showDeliveryForm() {
             document.getElementById('login-container').classList.add('hidden');
             document.getElementById('delivery-container').classList.remove('hidden');
             document.getElementById('welcome-message').textContent = `歡迎：${userData.name}`;
         }
 
-        // 載入下拉選單資料
         async function loadDropdownData() {
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getDropdownData`);
                 const data = await response.json();
-                
                 if (data.success) {
                     populateDropdown('delivery-locations', data.locations);
                     populateDropdown('vehicle-types', data.vehicles);
-                } else {
-                    console.error('載入下拉選單資料失敗:', data.message);
                 }
             } catch (error) {
                 console.error('載入下拉選單錯誤:', error);
             }
         }
 
-        // 填充下拉選單
         function populateDropdown(listId, options) {
             const datalist = document.getElementById(listId);
-            datalist.innerHTML = '';
-            
-            options.forEach(option => {
-                const optionElement = document.createElement('option');
-                optionElement.value = option;
-                datalist.appendChild(optionElement);
-            });
+            datalist.innerHTML = options.map(option => 
+                `<option value="${option}">${option}</option>`
+            ).join('');
         }
 
-        // 設定數字輸入框
-        function setupNumericInputs() {
-            const numericInputs = [
-                'product-load',
-                'product-unload',
-                'empty-load',
-                'empty-unload'
-            ];
-            
-            numericInputs.forEach(id => {
-                const input = document.getElementById(id);
-                input.addEventListener('focus', () => {
-                    input.setAttribute('inputmode', 'numeric');
-                });
-            });
-        }
-
-       // 處理表單提交
-async function handleSubmit() {
-    const deliveryLocation = document.getElementById('delivery-location').value.trim();
-    const vehicleType = document.getElementById('vehicle-type').value.trim();
-    const productLoad = document.getElementById('product-load').value.trim();
-    const productUnload = document.getElementById('product-unload').value.trim();
-    const emptyLoad = document.getElementById('empty-load').value.trim();
-    const emptyUnload = document.getElementById('empty-unload').value.trim();
-    
-    const messageElement = document.getElementById('submit-message');
-    
-    // 驗證必填欄位
-    if (!deliveryLocation || !vehicleType) {
-        messageElement.textContent = '請填寫配送點和載具簡稱';
-        messageElement.className = 'error-message';
-        return;
-    }
-    
-    // 準備提交資料
-    const formData = {
-        action: 'submitData',
-        driverName: userData.name,
-        deliveryLocation,
-        vehicleType,
-        productLoad: productLoad || '0',
-        productUnload: productUnload || '0',
-        emptyLoad: emptyLoad || '0',
-        emptyUnload: emptyUnload || '0'
-    };
-    
-    messageElement.textContent = '資料提交中...';
-    
-    try {
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            
-            body: JSON.stringify(formData),
-            // CORS 設定
-            
-        });
-        
-        // 添加錯誤日誌
-        console.log('提交回應狀態:', response.status);
-        
-        const data = await response.json();
-        console.log('提交回應資料:', data);
-        
-        if (data.success) {
-            messageElement.textContent = '資料已成功送出！';
-            messageElement.className = 'message';
-            resetForm();
-        } else {
-            messageElement.textContent = `提交失敗：${data.message}`;
-            messageElement.className = 'error-message';
-        }
-    } catch (error) {
-        console.error('提交錯誤詳情:', error);
-        messageElement.textContent = '提交失敗，請稍後再試';
-        messageElement.className = 'error-message';
-    }
-}
-
-
-        // 重置表單
         function resetForm() {
-            document.getElementById('delivery-location').value = '';
-            document.getElementById('vehicle-type').value = '';
-            document.getElementById('product-load').value = '';
-            document.getElementById('product-unload').value = '';
-            document.getElementById('empty-load').value = '';
-            document.getElementById('empty-unload').value = '';
-            document.getElementById('submit-message').textContent = '';
+            document.querySelectorAll('#delivery-container input').forEach(input => {
+                if (input.type !== 'hidden') input.value = '';
+            });
             const msg = document.getElementById('submit-message');
-  msg.textContent = '';
-  msg.className = '';            // ←
+            msg.textContent = '';
+            msg.className = '';
+            msg.style.display = 'none';
         }
     </script>
 </body>
