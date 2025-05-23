@@ -398,10 +398,6 @@
             // 重設密碼表單
             document.getElementById('resetPasswordForm').addEventListener('submit', handlePasswordReset);
             
-            // 下拉選單設置
-            setupDropdown('deliveryPoint', 'deliveryPointList', deliveryPoints);
-            setupDropdown('vehicle', 'vehicleList', vehicles);
-            
             // 點擊其他地方關閉下拉選單
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.dropdown-container')) {
@@ -421,11 +417,17 @@
                 if (data.success) {
                     deliveryPoints = data.deliveryPoints;
                     vehicles = data.vehicles;
+                    // 在資料載入後設置下拉選單
+                    setupDropdown('deliveryPoint', 'deliveryPointList', deliveryPoints);
+                    setupDropdown('vehicle', 'vehicleList', vehicles);
                 } else {
                     throw new Error(data.error || '載入下拉選單資料失敗');
                 }
             } catch (error) {
                 console.error('載入下拉選單資料失敗:', error);
+                // 即使載入失敗也要設置基本的事件監聽器
+                setupDropdown('deliveryPoint', 'deliveryPointList', []);
+                setupDropdown('vehicle', 'vehicleList', []);
                 throw error;
             }
         }
@@ -554,10 +556,12 @@
             const input = document.getElementById(inputId);
             const list = document.getElementById(listId);
             
+            if (!input || !list) return;
+            
             input.addEventListener('input', function() {
                 const value = this.value.toLowerCase();
                 const filtered = dataArray.filter(item => 
-                    item.toLowerCase().includes(value)
+                    item && item.toString().toLowerCase().includes(value)
                 );
                 
                 if (filtered.length > 0 && value) {
@@ -633,6 +637,8 @@
             document.getElementById('mainPage').classList.add('hidden');
             document.getElementById('resetPasswordPage').classList.add('hidden');
             clearLoginError();
+            // 清空登入表單
+            document.getElementById('loginForm').reset();
         }
 
         function showMainPage() {
@@ -669,8 +675,11 @@
         }
 
         function clearMessage() {
-            document.getElementById('message').textContent = '';
-            document.getElementById('message').className = 'message';
+            const messageElement = document.getElementById('message');
+            if (messageElement) {
+                messageElement.textContent = '';
+                messageElement.className = 'message';
+            }
         }
 
         function showResetMessage(message, type) {
