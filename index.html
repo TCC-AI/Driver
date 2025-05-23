@@ -1,697 +1,292 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>配送資訊登錄系統</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Microsoft JhengHei', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 500px;
-        }
-
-        .page {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 2rem;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            position: relative;
-        }
-
-        #welcomeMessage {
-            font-size: 1.1rem;
-            color: #666;
-            font-weight: bold;
-        }
-
-        .logout-container {
-            position: relative;
-        }
-
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .logout-btn:hover {
-            background: #c82333;
-        }
-
-        .logout-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            min-width: 120px;
-        }
-
-        .menu-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-        }
-
-        .menu-item:last-child {
-            border-bottom: none;
-        }
-
-        .menu-item:hover {
-            background: #f8f9fa;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #333;
-            font-weight: bold;
-        }
-
-        input[type="text"], input[type="password"], input[type="number"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus, input[type="password"]:focus, input[type="number"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        /* 數字輸入框在手機上顯示數字鍵盤 */
-        input[type="number"] {
-            -webkit-appearance: none;
-            -moz-appearance: textfield;
-        }
-
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .dropdown-container {
-            position: relative;
-        }
-
-        .dropdown-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-top: none;
-            border-radius: 0 0 5px 5px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 100;
-            display: none;
-        }
-
-        .dropdown-item {
-            padding: 10px 12px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-        }
-
-        .dropdown-item:last-child {
-            border-bottom: none;
-        }
-
-        .dropdown-item:hover {
-            background: #f8f9fa;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button[type="submit"], .submit-btn {
-            background: #28a745;
-            color: white;
-        }
-
-        button[type="submit"]:hover, .submit-btn:hover {
-            background: #218838;
-        }
-
-        .reset-btn {
-            background: #6c757d;
-            color: white;
-        }
-
-        .reset-btn:hover {
-            background: #5a6268;
-        }
-
-        .error {
-            color: #dc3545;
-            text-align: center;
-            margin-top: 1rem;
-        }
-
-        .message {
-            text-align: center;
-            margin-top: 1rem;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                margin: 1rem;
-                padding: 1.5rem;
-            }
-            
-            .button-group {
-                flex-direction: column;
-            }
-            
-            .header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>配送資訊登錄</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@1.4.0/dist/axios.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.15/babel.min.js"></script>
 </head>
 <body>
-    <!-- 登入頁面 -->
-    <div id="loginPage" class="page">
-        <div class="container">
-            <h1>司機登入系統</h1>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="username">帳號：</label>
-                    <input type="text" id="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">密碼：</label>
-                    <input type="password" id="password" required>
-                </div>
-                <button type="submit">登入</button>
-            </form>
-            <div id="loginError" class="error"></div>
-        </div>
-    </div>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-    <!-- 配送資訊登錄頁面 -->
-    <div id="mainPage" class="page hidden">
-        <div class="container">
-            <div class="header">
-                <div id="welcomeMessage"></div>
-                <div class="logout-container">
-                    <button id="logoutBtn" class="logout-btn">登出 ▼</button>
-                    <div id="logoutMenu" class="logout-menu hidden">
-                        <div class="menu-item" onclick="resetPassword()">重設密碼</div>
-                        <div class="menu-item" onclick="logout()">登出</div>
-                    </div>
-                </div>
-            </div>
-            
-            <h1>配送資訊登錄</h1>
-            
-            <form id="deliveryForm">
-                <div class="form-group">
-                    <label for="deliveryPoint">配送點簡稱：</label>
-                    <div class="dropdown-container">
-                        <input type="text" id="deliveryPoint" placeholder="請選擇或輸入關鍵字搜尋" required>
-                        <div id="deliveryPointList" class="dropdown-list"></div>
-                    </div>
-                </div>
+    const App = () => {
+      const [isLoggedIn, setIsLoggedIn] = useState(false);
+      const [username, setUsername] = useState('');
+      const [password, setPassword] = useState('');
+      const [driverName, setDriverName] = useState('');
+      const [deliveryPoints, setDeliveryPoints] = useState([]);
+      const [vehicles, setVehicles] = useState([]);
+      const [selectedPoint, setSelectedPoint] = useState('');
+      const [selectedVehicle, setSelectedVehicle] = useState('');
+      const [pointSearch, setPointSearch] = useState('');
+      const [vehicleSearch, setVehicleSearch] = useState('');
+      const [formData, setFormData] = useState({
+        loadGoods: '',
+        unloadGoods: '',
+        loadEmpty: '',
+        unloadEmpty: ''
+      });
+      const [error, setError] = useState('');
+      const [showLogoutMenu, setShowLogoutMenu] = useState(false);
 
-                <div class="form-group">
-                    <label for="vehicle">載具簡稱：</label>
-                    <div class="dropdown-container">
-                        <input type="text" id="vehicle" placeholder="請選擇或輸入關鍵字搜尋" required>
-                        <div id="vehicleList" class="dropdown-list"></div>
-                    </div>
-                </div>
+      // Replace with your Google Apps Script Web App URL
+      const API_URL = 'https://script.google.com/macros/s/AKfycbxpATc2-QCvFVcPp483NgtauUVz6sCQ5d-EZTXiVAYpemoJ1aRr1I71eA2hMO-OdO8/exec';
 
-                <div class="form-group">
-                    <label for="goodsOn">【商品載具/棧板】上車載具：</label>
-                    <input type="number" id="goodsOn" min="0" inputmode="numeric" pattern="[0-9]*" required>
-                </div>
+      // Fetch dropdown data on mount
+      useEffect(() => {
+        if (isLoggedIn) {
+          axios.get(`${API_URL}?action=getDropdowns`)
+            .then(response => {
+              setDeliveryPoints(response.data.deliveryPoints);
+              setVehicles(response.data.vehicles);
+            })
+            .catch(err => setError('無法加載下拉選單資料'));
+        }
+      }, [isLoggedIn]);
 
-                <div class="form-group">
-                    <label for="goodsOff">【商品載具/棧板】下車載具：</label>
-                    <input type="number" id="goodsOff" min="0" inputmode="numeric" pattern="[0-9]*" required>
-                </div>
+      // Handle login
+      const handleLogin = (e) => {
+        e.preventDefault();
+        axios.post(API_URL, { action: 'login', username, password })
+          .then(response => {
+            if (response.data.success) {
+              setDriverName(response.data.name);
+              setIsLoggedIn(true);
+              setError('');
+            } else {
+              setError('帳號或密碼錯誤');
+            }
+          })
+          .catch(() => setError('登入失敗，請稍後再試'));
+      };
 
-                <div class="form-group">
-                    <label for="emptyOn">【空籃/空桶】上車載具：</label>
-                    <input type="number" id="emptyOn" min="0" inputmode="numeric" pattern="[0-9]*" required>
-                </div>
+      // Handle form submission
+      const handleSubmit = () => {
+        if (!selectedPoint || !selectedVehicle || !formData.loadGoods || !formData.unloadGoods || !formData.loadEmpty || !formData.unloadEmpty) {
+          setError('請填寫所有欄位');
+          return;
+        }
+        const data = {
+          action: 'submit',
+          name: driverName,
+          point: selectedPoint,
+          vehicle: selectedVehicle,
+          loadGoods: formData.loadGoods,
+          unloadGoods: formData.unloadGoods,
+          loadEmpty: formData.loadEmpty,
+          unloadEmpty: formData.unloadEmpty
+        };
+        axios.post(API_URL, data)
+          .then(response => {
+            if (response.data.success) {
+              alert('資料已送出');
+              handleReset();
+            } else {
+              setError('送出失敗');
+            }
+          })
+          .catch(() => setError('送出失敗，請稍後再試'));
+      };
 
-                <div class="form-group">
-                    <label for="emptyOff">【空籃/空桶】下車載具：</label>
-                    <input type="number" id="emptyOff" min="0" inputmode="numeric" pattern="[0-9]*" required>
-                </div>
-
-                <div class="button-group">
-                    <button type="submit" class="submit-btn">送出</button>
-                    <button type="button" id="resetBtn" class="reset-btn">重置</button>
-                </div>
-            </form>
-            
-            <div id="message" class="message"></div>
-        </div>
-    </div>
-
-    <!-- 重設密碼頁面 -->
-    <div id="resetPasswordPage" class="page hidden">
-        <div class="container">
-            <h1>重設密碼</h1>
-            <form id="resetPasswordForm">
-                <div class="form-group">
-                    <label for="newPassword">新密碼：</label>
-                    <input type="password" id="newPassword" required>
-                </div>
-                <div class="form-group">
-                    <label for="confirmPassword">確認新密碼：</label>
-                    <input type="password" id="confirmPassword" required>
-                </div>
-                <div class="button-group">
-                    <button type="submit">確認修改</button>
-                    <button type="button" onclick="showMainPage()">取消</button>
-                </div>
-            </form>
-            <div id="resetMessage" class="message"></div>
-        </div>
-    </div>
-
-    <script>
-        // Google Apps Script Web App URL
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxOL8sBeg4bpSk-iu_9cXC6M6QirZHznaNiDz5CSjPuxH8BiN8kLvtmDBAH7jJbbotW/exec';
-
-        let currentUser = null;
-        let deliveryPoints = [];
-        let vehicles = [];
-
-        // 頁面載入時初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
+      // Handle reset
+      const handleReset = () => {
+        setSelectedPoint('');
+        setSelectedVehicle('');
+        setPointSearch('');
+        setVehicleSearch('');
+        setFormData({
+          loadGoods: '',
+          unloadGoods: '',
+          loadEmpty: '',
+          unloadEmpty: ''
         });
+        setError('');
+      };
 
-        async function initializeApp() {
-            try {
-                // 載入下拉選單資料
-                await loadDropdownData();
-                setupEventListeners();
-            } catch (error) {
-                console.error('初始化失敗:', error);
-                showMessage('系統初始化失敗，請重新整理頁面', 'error');
-            }
-        }
-
-        function setupEventListeners() {
-            // 登入表單
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            
-            // 配送表單
-            document.getElementById('deliveryForm').addEventListener('submit', handleDeliverySubmit);
-            
-            // 重置按鈕
-            document.getElementById('resetBtn').addEventListener('click', resetForm);
-            
-            // 登出按鈕
-            document.getElementById('logoutBtn').addEventListener('click', toggleLogoutMenu);
-            
-            // 重設密碼表單
-            document.getElementById('resetPasswordForm').addEventListener('submit', handlePasswordReset);
-            
-            // 點擊其他地方關閉下拉選單
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.dropdown-container')) {
-                    hideAllDropdowns();
-                }
-                if (!e.target.closest('.logout-container')) {
-                    hideLogoutMenu();
-                }
-            });
-        }
-
-        async function loadDropdownData() {
-            try {
-                const response = await fetch(`${GAS_URL}?action=getDropdownData`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    deliveryPoints = data.deliveryPoints;
-                    vehicles = data.vehicles;
-                    // 在資料載入後設置下拉選單
-                    setupDropdown('deliveryPoint', 'deliveryPointList', deliveryPoints);
-                    setupDropdown('vehicle', 'vehicleList', vehicles);
+      // Handle logout or password reset
+      const handleLogoutAction = (action) => {
+        if (action === 'logout') {
+          setIsLoggedIn(false);
+          setUsername('');
+          setPassword('');
+          setDriverName('');
+          setShowLogoutMenu(false);
+        } else if (action === 'resetPassword') {
+          const newPassword = prompt('請輸入新密碼');
+          if (newPassword) {
+            axios.post(API_URL, { action: 'resetPassword', username, newPassword })
+              .then(response => {
+                if (response.data.success) {
+                  alert('密碼已重設');
+                  setShowLogoutMenu(false);
                 } else {
-                    throw new Error(data.error || '載入下拉選單資料失敗');
+                  setError('密碼重設失敗');
                 }
-            } catch (error) {
-                console.error('載入下拉選單資料失敗:', error);
-                // 即使載入失敗也要設置基本的事件監聽器
-                setupDropdown('deliveryPoint', 'deliveryPointList', []);
-                setupDropdown('vehicle', 'vehicleList', []);
-                throw error;
-            }
+              })
+              .catch(() => setError('密碼重設失敗，請稍後再試'));
+          }
         }
+      };
 
-        async function handleLogin(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            
-            if (!username || !password) {
-                showLoginError('請輸入帳號和密碼');
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${GAS_URL}?action=login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    currentUser = data.user;
-                    showMainPage();
-                } else {
-                    showLoginError(data.error || '登入失敗');
-                }
-            } catch (error) {
-                console.error('登入錯誤:', error);
-                showLoginError('連線錯誤，請稍後再試');
-            }
-        }
+      // Filter dropdown options
+      const filteredPoints = deliveryPoints.filter(point =>
+        point.toLowerCase().includes(pointSearch.toLowerCase())
+      );
+      const filteredVehicles = vehicles.filter(vehicle =>
+        vehicle.toLowerCase().includes(vehicleSearch.toLowerCase())
+      );
 
-        async function handleDeliverySubmit(e) {
-            e.preventDefault();
-            
-            const formData = {
-                driverName: currentUser.name,
-                deliveryPoint: document.getElementById('deliveryPoint').value.trim(),
-                vehicle: document.getElementById('vehicle').value.trim(),
-                goodsOn: parseInt(document.getElementById('goodsOn').value) || 0,
-                goodsOff: parseInt(document.getElementById('goodsOff').value) || 0,
-                emptyOn: parseInt(document.getElementById('emptyOn').value) || 0,
-                emptyOff: parseInt(document.getElementById('emptyOff').value) || 0
-            };
-            
-            // 驗證所有欄位都有填寫
-            if (!formData.deliveryPoint || !formData.vehicle) {
-                showMessage('請完整填寫所有欄位', 'error');
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${GAS_URL}?action=submitDelivery`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showMessage('配送資訊已成功提交！', 'success');
-                    resetForm();
-                } else {
-                    showMessage(data.error || '提交失敗', 'error');
-                }
-            } catch (error) {
-                console.error('提交錯誤:', error);
-                showMessage('連線錯誤，請稍後再試', 'error');
-            }
-        }
+      if (!isLoggedIn) {
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+              <h1 className="text-2xl font-bold mb-6 text-center">登入</h1>
+              <form onSubmit={handleLogin}>
+                <div className="mb-4">
+                  <label className="block text-gray-700">帳號</label>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700">密碼</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                </div>
+                {error && <p className="text-red-500 mb-4">{error}</p>}
+                <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                  登入
+                </button>
+              </form>
+            </div>
+          </div>
+        );
+      }
 
-        async function handlePasswordReset(e) {
-            e.preventDefault();
-            
-            const newPassword = document.getElementById('newPassword').value.trim();
-            const confirmPassword = document.getElementById('confirmPassword').value.trim();
-            
-            if (newPassword !== confirmPassword) {
-                showResetMessage('兩次輸入的密碼不一致', 'error');
-                return;
-            }
-            
-            if (newPassword.length < 4) {
-                showResetMessage('密碼長度至少需要4個字元', 'error');
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${GAS_URL}?action=resetPassword`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        username: currentUser.username, 
-                        newPassword: newPassword 
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showResetMessage('密碼修改成功！', 'success');
-                    setTimeout(() => {
-                        showMainPage();
-                    }, 2000);
-                } else {
-                    showResetMessage(data.error || '密碼修改失敗', 'error');
-                }
-            } catch (error) {
-                console.error('密碼重設錯誤:', error);
-                showResetMessage('連線錯誤，請稍後再試', 'error');
-            }
-        }
+      return (
+        <div className="min-h-screen bg-gray-100 p-4">
+          <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+            <div className="flex justify-between items-center mb-4">
+              <h1 className="text-xl font-bold">歡迎: {driverName}</h1>
+              <div className="relative">
+                <button
+                  onClick={() => setShowLogoutMenu(!showLogoutMenu)}
+                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                >
+                  選項
+                </button>
+                {showLogoutMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg">
+                    <button
+                      onClick={() => handleLogoutAction('resetPassword')}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    >
+                      重設密碼
+                    </button>
+                    <button
+                      onClick={() => handleLogoutAction('logout')}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    >
+                      登出
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold mb-6 text-center">配送資訊登錄</h2>
+            {error && <p className="text-red-500 mb-4">{error}</p>}
+            <div className="mb-4">
+              <label className="block text-gray-700">配送點簡稱</label>
+              <input
+                type="text"
+                value={pointSearch}
+                onChange={(e) => setPointSearch(e.target.value)}
+                placeholder="輸入關鍵字搜尋"
+                className="w-full p-2 border rounded mb-2"
+              />
+              <select
+                value={selectedPoint}
+                onChange={(e) => setSelectedPoint(e.target.value)}
+                className="w-full p-2 border rounded"
+              >
+                <option value="">請選擇</option>
+                {filteredPoints.map((point, index) => (
+                  <option key={index} value={point}>{point}</option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700">載具簡稱</label>
+              <input
+                type="text"
+                value={vehicleSearch}
+                onChange={(e) => setVehicleSearch(e.target.value)}
+                placeholder="輸入關鍵字搜尋"
+                className="w-full p-2 border rounded mb-2"
+              />
+              <select
+                value={selectedVehicle}
+                onChange={(e) => setSelectedVehicle(e.target.value)}
+                className="w-full p-2 border rounded"
+              >
+                <option value="">請選擇</option>
+                {filteredVehicles.map((vehicle, index) => (
+                  <option key={index} value={vehicle}>{vehicle}</option>
+                ))}
+              </select>
+            </div>
+            {[
+              { label: '【商品載具/棧板】上車載具', key: 'loadGoods' },
+              { label: '【商品載具/棧板】下車載具', key: 'unloadGoods' },
+              { label: '【空籃/空桶】上車載具', key: 'loadEmpty' },
+              { label: '【空籃/空桶】下車載具', key: 'unloadEmpty' }
+            ].map((field, index) => (
+              <div key={index} className="mb-4">
+                <label className="block text-gray-700">{field.label}</label>
+                <input
+                  type="number"
+                  value={formData[field.key]}
+                  onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+            ))}
+            <div className="flex justify-between">
+              <button
+                onClick={handleSubmit}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                送出
+              </button>
+              <button
+                onClick={handleReset}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                重置
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
 
-        function setupDropdown(inputId, listId, dataArray) {
-            const input = document.getElementById(inputId);
-            const list = document.getElementById(listId);
-            
-            if (!input || !list) return;
-            
-            input.addEventListener('input', function() {
-                const value = this.value.toLowerCase();
-                const filtered = dataArray.filter(item => 
-                    item && item.toString().toLowerCase().includes(value)
-                );
-                
-                if (filtered.length > 0 && value) {
-                    showDropdownList(list, filtered, input);
-                } else {
-                    hideDropdownList(list);
-                }
-            });
-            
-            input.addEventListener('focus', function() {
-                if (dataArray.length > 0) {
-                    showDropdownList(list, dataArray, input);
-                }
-            });
-        }
-
-        function showDropdownList(listElement, items, inputElement) {
-            listElement.innerHTML = '';
-            
-            items.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'dropdown-item';
-                div.textContent = item;
-                div.addEventListener('click', function() {
-                    inputElement.value = item;
-                    hideDropdownList(listElement);
-                });
-                listElement.appendChild(div);
-            });
-            
-            listElement.style.display = 'block';
-        }
-
-        function hideDropdownList(listElement) {
-            listElement.style.display = 'none';
-        }
-
-        function hideAllDropdowns() {
-            document.querySelectorAll('.dropdown-list').forEach(list => {
-                hideDropdownList(list);
-            });
-        }
-
-        function toggleLogoutMenu() {
-            const menu = document.getElementById('logoutMenu');
-            menu.classList.toggle('hidden');
-        }
-
-        function hideLogoutMenu() {
-            document.getElementById('logoutMenu').classList.add('hidden');
-        }
-
-        function resetPassword() {
-            hideLogoutMenu();
-            showResetPasswordPage();
-        }
-
-        function logout() {
-            currentUser = null;
-            resetForm();
-            hideLogoutMenu();
-            showLoginPage();
-        }
-
-        function resetForm() {
-            document.getElementById('deliveryForm').reset();
-            hideAllDropdowns();
-            clearMessage();
-        }
-
-        function showLoginPage() {
-            document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
-            document.getElementById('resetPasswordPage').classList.add('hidden');
-            clearLoginError();
-            // 清空登入表單
-            document.getElementById('loginForm').reset();
-        }
-
-        function showMainPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('mainPage').classList.remove('hidden');
-            document.getElementById('resetPasswordPage').classList.add('hidden');
-            
-            if (currentUser) {
-                document.getElementById('welcomeMessage').textContent = `歡迎：${currentUser.name}`;
-            }
-            clearMessage();
-        }
-
-        function showResetPasswordPage() {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('mainPage').classList.add('hidden');
-            document.getElementById('resetPasswordPage').classList.remove('hidden');
-            document.getElementById('resetPasswordForm').reset();
-            clearResetMessage();
-        }
-
-        function showLoginError(message) {
-            document.getElementById('loginError').textContent = message;
-        }
-
-        function clearLoginError() {
-            document.getElementById('loginError').textContent = '';
-        }
-
-        function showMessage(message, type) {
-            const messageElement = document.getElementById('message');
-            messageElement.textContent = message;
-            messageElement.className = `message ${type}`;
-        }
-
-        function clearMessage() {
-            const messageElement = document.getElementById('message');
-            if (messageElement) {
-                messageElement.textContent = '';
-                messageElement.className = 'message';
-            }
-        }
-
-        function showResetMessage(message, type) {
-            const messageElement = document.getElementById('resetMessage');
-            messageElement.textContent = message;
-            messageElement.className = `message ${type}`;
-        }
-
-        function clearResetMessage() {
-            document.getElementById('resetMessage').textContent = '';
-            document.getElementById('resetMessage').className = 'message';
-        }
-    </script>
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
 </body>
 </html>
