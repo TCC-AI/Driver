@@ -190,7 +190,7 @@
     <script>
         // 全域變數
         let userData = null;
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwtYLoDZJVjlHsKJwJJemyJqjLcCzovKazcGETAtZ5a-CqSTNcju2PHHcgohOQQpisl/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbww7iswbGsWzG4gglpSsNCUo1kpDPef_JJ39EeN0A56FMb3s3cG4Vhez6s_KIvriZcM/exec';
 
         // 頁面載入完成後執行
         document.addEventListener('DOMContentLoaded', () => {
@@ -344,107 +344,6 @@
                 messageElement.className = 'error-message';
             }
         }
-// 更強化的後端錯誤處理
-function submitDeliveryData(data) {
-  let step = '初始化';
-  try {
-    step = '驗證資料';
-    if (!data || !data.driverName || !data.deliveryLocation) {
-      throw new Error('缺少必要資料欄位');
-    }
-    
-    step = '開啟試算表';
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    
-    step = '取得工作表';
-    const sheet = ss.getSheetByName(DATA_SHEET_NAME);
-    if (!sheet) {
-      throw new Error(`找不到工作表: ${DATA_SHEET_NAME}`);
-    }
-    
-    step = '準備資料';
-    const now = new Date();
-    const formattedDate = Utilities.formatDate(now, Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm:ss');
-    
-    const rowData = [
-      formattedDate,
-      data.driverName,
-      data.deliveryLocation,
-      data.vehicleType,
-      parseInt(data.productLoad) || 0,
-      parseInt(data.productUnload) || 0,
-      parseInt(data.emptyLoad) || 0,
-      parseInt(data.emptyUnload) || 0
-    ];
-    
-    step = '寫入資料';
-    sheet.appendRow(rowData);
-    
-    step = '完成';
-    return ContentService.createTextOutput(JSON.stringify({
-      success: true,
-      message: '資料已成功提交'
-    })).setMimeType(ContentService.MimeType.JSON);
-    
-  } catch (error) {
-    console.error(`在步驟 "${step}" 發生錯誤:`, error);
-    return ContentService.createTextOutput(JSON.stringify({
-      success: false,
-      message: `在 ${step} 階段失敗: ${error.toString()}`,
-      step: step
-    })).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-        
-        // 修改前端的 handleSubmit 函數，加入超時處理
-async function handleSubmit() {
-    const messageElement = document.getElementById('submit-message');
-    messageElement.textContent = '資料提交中...';
-    
-    // 加入超時控制
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超時
-    
-    try {
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(formData),
-            signal: controller.signal,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            messageElement.textContent = '資料已成功送出！';
-            messageElement.className = 'message';
-            resetForm();
-        } else {
-            messageElement.textContent = `提交失敗：${data.message}`;
-            messageElement.className = 'error-message';
-        }
-    } catch (error) {
-        clearTimeout(timeoutId);
-        console.error('提交錯誤詳情:', error);
-        
-        if (error.name === 'AbortError') {
-            messageElement.textContent = '提交超時，請檢查網路連線後重試';
-        } else {
-            messageElement.textContent = `提交失敗：${error.message}`;
-        }
-        messageElement.className = 'error-message';
-    }
-}
-
 
         // 重置表單
         function resetForm() {
