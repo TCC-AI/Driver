@@ -256,42 +256,6 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
-        
-        /* 模態框樣式 */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 400px;
-            position: relative;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 24px;
-            cursor: pointer;
-            color: #777;
-        }
-
-        .close-modal:hover {
-            color: #333;
-        }
     </style>
 </head>
 <body>
@@ -404,33 +368,11 @@
             </div>
         </div>
     </div>
-    
-    <!-- 重設密碼模態框 -->
-    <div id="password-reset-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2>重設密碼</h2>
-            <div class="form-group">
-                <label for="current-password">目前密碼</label>
-                <input type="password" id="current-password" placeholder="請輸入目前密碼">
-            </div>
-            <div class="form-group">
-                <label for="new-password">新密碼</label>
-                <input type="password" id="new-password" placeholder="請輸入新密碼">
-            </div>
-            <div class="form-group">
-                <label for="confirm-password">確認新密碼</label>
-                <input type="password" id="confirm-password" placeholder="請再次輸入新密碼">
-            </div>
-            <button id="confirm-reset-btn">確認修改</button>
-            <p id="reset-message" class="message"></p>
-        </div>
-    </div>
 
     <script>
         // 全域變數
         let userData = null;
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJ0xLqmDuPvuE3sXFhla9dOpGWGuvc58afMg0qhg591FYSWHZGsFLW6EGY1kfQ-Mj_/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyeCqK3XDhZkqCEgfnK8CkioQSVtSQoW1WmvPGXLTH99XbtGi6nkRW-UPUYnhqavWQB/exec';
 
         // 頁面載入完成後執行
         document.addEventListener('DOMContentLoaded', () => {
@@ -468,22 +410,6 @@
             
             // 重設密碼按鈕事件
             document.getElementById('reset-password').addEventListener('click', handleResetPassword);
-            
-            // 關閉模態框按鈕
-            document.querySelector('.close-modal').addEventListener('click', () => {
-                document.getElementById('password-reset-modal').classList.add('hidden');
-            });
-            
-            // 確認重設密碼按鈕
-            document.getElementById('confirm-reset-btn').addEventListener('click', confirmResetPassword);
-            
-            // 點擊模態框外部關閉
-            window.addEventListener('click', (event) => {
-                const modal = document.getElementById('password-reset-modal');
-                if (event.target === modal) {
-                    modal.classList.add('hidden');
-                }
-            });
         });
 
         // 處理登入
@@ -505,7 +431,6 @@
                 
                 if (data.success) {
                     userData = data.user;
-                    userData.username = username; // 保存用戶名以便重設密碼時使用
                     showDeliveryForm();
                     loadDropdownData();
                 } else {
@@ -534,71 +459,7 @@
         
         // 處理重設密碼
         function handleResetPassword() {
-            // 顯示重設密碼模態框
-            document.getElementById('password-reset-modal').classList.remove('hidden');
-            
-            // 清空表單
-            document.getElementById('current-password').value = '';
-            document.getElementById('new-password').value = '';
-            document.getElementById('confirm-password').value = '';
-            document.getElementById('reset-message').textContent = '';
-        }
-        
-        // 確認重設密碼
-        async function confirmResetPassword() {
-            const currentPassword = document.getElementById('current-password').value.trim();
-            const newPassword = document.getElementById('new-password').value.trim();
-            const confirmPassword = document.getElementById('confirm-password').value.trim();
-            const messageElement = document.getElementById('reset-message');
-            
-            // 驗證輸入
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                messageElement.textContent = '請填寫所有密碼欄位';
-                messageElement.className = 'error-message';
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                messageElement.textContent = '新密碼與確認密碼不符';
-                messageElement.className = 'error-message';
-                return;
-            }
-            
-            // 準備提交資料
-            const formData = {
-                action: 'resetPassword',
-                username: userData.username,
-                currentPassword,
-                newPassword
-            };
-            
-            messageElement.textContent = '處理中...';
-            
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(formData)
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    messageElement.textContent = '密碼已成功重設！';
-                    messageElement.className = 'message';
-                    
-                    // 3秒後關閉模態框
-                    setTimeout(() => {
-                        document.getElementById('password-reset-modal').classList.add('hidden');
-                    }, 3000);
-                } else {
-                    messageElement.textContent = data.message || '重設密碼失敗';
-                    messageElement.className = 'error-message';
-                }
-            } catch (error) {
-                console.error('重設密碼錯誤:', error);
-                messageElement.textContent = '重設密碼失敗，請稍後再試';
-                messageElement.className = 'error-message';
-            }
+            alert('重設密碼功能尚未實作');
         }
 
         // 顯示配送表單
@@ -625,7 +486,7 @@
             }
         }
 
-                // 填充下拉選單
+        // 填充下拉選單
         function populateDropdown(listId, options) {
             const datalist = document.getElementById(listId);
             datalist.innerHTML = '';
