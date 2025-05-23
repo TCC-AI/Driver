@@ -190,7 +190,7 @@
     <script>
         // 全域變數
         let userData = null;
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxRyLI7M8s29hwUJLn07KtjN67904R9i6BhB--euC8kp8NuQ39_44K6IkR24hcLvk10/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySDYxA3F58oL_MsOQG_CQDAlpJq8lx3R64ktN3NR9PG2qacH4HSqYIuXQoKpoPWlLu/exec';
 
         // 頁面載入完成後執行
         document.addEventListener('DOMContentLoaded', () => {
@@ -290,60 +290,71 @@
             });
         }
 
-        // 處理表單提交
-        async function handleSubmit() {
-            const deliveryLocation = document.getElementById('delivery-location').value.trim();
-            const vehicleType = document.getElementById('vehicle-type').value.trim();
-            const productLoad = document.getElementById('product-load').value.trim();
-            const productUnload = document.getElementById('product-unload').value.trim();
-            const emptyLoad = document.getElementById('empty-load').value.trim();
-            const emptyUnload = document.getElementById('empty-unload').value.trim();
-            
-            const messageElement = document.getElementById('submit-message');
-            
-            // 驗證必填欄位
-            if (!deliveryLocation || !vehicleType) {
-                messageElement.textContent = '請填寫配送點和載具簡稱';
-                messageElement.className = 'error-message';
-                return;
-            }
-            
-            // 準備提交資料
-            const formData = {
-                action: 'submitData',
-                driverName: userData.name,
-                deliveryLocation,
-                vehicleType,
-                productLoad: productLoad || '0',
-                productUnload: productUnload || '0',
-                emptyLoad: emptyLoad || '0',
-                emptyUnload: emptyUnload || '0'
-            };
-            
-            messageElement.textContent = '資料提交中...';
-            
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(formData)
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    messageElement.textContent = '資料已成功送出！';
-                    messageElement.className = 'message';
-                    resetForm();
-                } else {
-                    messageElement.textContent = `提交失敗：${data.message}`;
-                    messageElement.className = 'error-message';
-                }
-            } catch (error) {
-                console.error('提交錯誤:', error);
-                messageElement.textContent = '提交失敗，請稍後再試';
-                messageElement.className = 'error-message';
-            }
+       // 處理表單提交
+async function handleSubmit() {
+    const deliveryLocation = document.getElementById('delivery-location').value.trim();
+    const vehicleType = document.getElementById('vehicle-type').value.trim();
+    const productLoad = document.getElementById('product-load').value.trim();
+    const productUnload = document.getElementById('product-unload').value.trim();
+    const emptyLoad = document.getElementById('empty-load').value.trim();
+    const emptyUnload = document.getElementById('empty-unload').value.trim();
+    
+    const messageElement = document.getElementById('submit-message');
+    
+    // 驗證必填欄位
+    if (!deliveryLocation || !vehicleType) {
+        messageElement.textContent = '請填寫配送點和載具簡稱';
+        messageElement.className = 'error-message';
+        return;
+    }
+    
+    // 準備提交資料
+    const formData = {
+        action: 'submitData',
+        driverName: userData.name,
+        deliveryLocation,
+        vehicleType,
+        productLoad: productLoad || '0',
+        productUnload: productUnload || '0',
+        emptyLoad: emptyLoad || '0',
+        emptyUnload: emptyUnload || '0'
+    };
+    
+    messageElement.textContent = '資料提交中...';
+    
+    try {
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+            // CORS 設定
+            mode: 'cors',
+            redirect: 'follow'
+        });
+        
+        // 添加錯誤日誌
+        console.log('提交回應狀態:', response.status);
+        
+        const data = await response.json();
+        console.log('提交回應資料:', data);
+        
+        if (data.success) {
+            messageElement.textContent = '資料已成功送出！';
+            messageElement.className = 'message';
+            resetForm();
+        } else {
+            messageElement.textContent = `提交失敗：${data.message}`;
+            messageElement.className = 'error-message';
         }
+    } catch (error) {
+        console.error('提交錯誤詳情:', error);
+        messageElement.textContent = '提交失敗，請稍後再試';
+        messageElement.className = 'error-message';
+    }
+}
+
 
         // 重置表單
         function resetForm() {
