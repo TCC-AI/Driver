@@ -8,13 +8,13 @@
         /* (原有樣式不變) */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: "微軟正黑體", sans-serif; }
         body { background-color: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .container { background-color: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 30px; width: 100%; max-width: 500px; position: relative; }
+        .container { background-color: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 30px; width: 100%; max-width: 500px; }
         h1 { color: #333; text-align: center; margin-bottom: 30px; }
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
         input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
         input:focus { outline: none; border-color: #4a90e2; box-shadow: 0 0 5px rgba(74,144,226,0.3); }
-        button { background-color: #4a90e2; color: white; border: none; border-radius: 5px; padding: 12px 20px; font-size: 16px; cursor: pointer; transition: background-color 0.3s; }
+        button { background-color: #4a90e2; color: white; border: none; border-radius: 5px; padding: 12px 20px; font-size: 16px; cursor: pointer; transition: background-color 0.3s; width: 100%; }
         button:hover { background-color: #3a7bc8; }
         .button-group { display: flex; gap: 15px; }
         .button-group button { flex: 1; }
@@ -38,19 +38,17 @@
         .date-filter { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
         .date-filter label { margin-bottom: 0; white-space: nowrap; }
         .date-filter input { flex: 1; }
-        /* 下拉與彈窗 */
-        .logout-dropdown { position: absolute; top: 50px; right: 30px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; overflow: hidden; min-width: 140px; }
-        .logout-dropdown .dropdown-option { padding: 12px 15px; cursor: pointer; transition: background-color 0.3s; font-size: 14px; }
-        .logout-dropdown .dropdown-option:hover { background-color: #f5f5f5; }
-        .logout-dropdown .logout-opt { color: #ff3333; font-weight: bold; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; }
-        .modal-content h3 { margin-bottom: 15px; }
-        .modal-content .form-group { margin-bottom: 10px; }
-        .modal-content .error-message { font-size: 14px; margin-top: 5px; }
+        .header-actions { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-btn { background-color: #4a90e2; color: white; padding: 8px 15px; font-size: 14px; border: none; border-radius: 4px; cursor: pointer; width: auto; }
+        .dropdown-content { display: none; position: absolute; right: 0; background-color: #f9f9f9; min-width: 120px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 1; border-radius: 4px; }
+        .dropdown-content a { color: black; padding: 12px 16px; text-decoration: none; display: block; font-size: 14px; }
+        .dropdown-content a:hover { background-color: #f1f1f1; border-radius: 4px; }
+        .dropdown:hover .dropdown-content { display: block; }
     </style>
 </head>
 <body>
+    <!-- 以下為原有結構，無變動 -->
     <div id="login-container" class="container">
         <h1>配送資訊登錄系統</h1>
         <div class="form-group">
@@ -68,53 +66,82 @@
     <div id="delivery-container" class="container hidden">
         <div class="header-actions">
             <div id="welcome-message"></div>
-            <button id="logoutButton" class="dropdown-btn">⋮</button>
+            <div class="dropdown">
+                <button class="dropdown-btn">登出</button>
+                <div class="dropdown-content">
+                    <a href="#" id="reset-password">重設密碼</a>
+                    <a href="#" id="logout">登出</a>
+                </div>
+            </div>
         </div>
-
         <div class="nav-tabs">
             <button id="tab-form" class="active">配送登錄</button>
             <button id="tab-history">歷史記錄</button>
         </div>
         <div class="tab-content">
             <div id="form-content" class="active">
-                <!-- ...表單內容不變... -->
+                <h1>配送資訊登錄</h1>
+                <div class="form-group">
+                    <label for="delivery-location">配送點簡稱</label>
+                    <input type="text" id="delivery-location" list="delivery-locations" placeholder="請選擇或輸入關鍵字搜尋">
+                    <datalist id="delivery-locations"></datalist>
+                </div>
+                <div class="form-group">
+                    <label for="vehicle-type">載具簡稱</label>
+                    <input type="text" id="vehicle-type" list="vehicle-types" placeholder="請選擇或輸入關鍵字搜尋">
+                    <datalist id="vehicle-types"></datalist>
+                </div>
+                <div class="form-group">
+                    <label for="product-load">【商品載具/棧板】上車載具</label>
+                    <input type="number" id="product-load" pattern="[0-9]*" inputmode="numeric" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="product-unload">【商品載具/棧板】下車載具</label>
+                    <input type="number" id="product-unload" pattern="[0-9]*" inputmode="numeric" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="empty-load">【空籃/空桶】上車載具</label>
+                    <input type="number" id="empty-load" pattern="[0-9]*" inputmode="numeric" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="empty-unload">【空籃/空桶】下車載具</label>
+                    <input type="number" id="empty-unload" pattern="[0-9]*" inputmode="numeric" placeholder="0">
+                </div>
+                <div class="button-group">
+                    <button id="submit-btn">送出</button>
+                    <button id="reset-btn">重置</button>
+                </div>
+                <p id="submit-message" class="message"></p>
             </div>
             <div id="history-content">
-                <!-- ...歷史記錄內容不變... -->
-            </div>
-        </div>
-    </div>
-
-    <!-- 更改密碼彈窗 -->
-    <div id="changePasswordModal" class="modal">
-        <div class="modal-content">
-            <h3>更改密碼</h3>
-            <div class="form-group">
-                <label>當前密碼</label>
-                <input type="password" id="currentPassword">
-            </div>
-            <div class="form-group">
-                <label>新密碼</label>
-                <input type="password" id="newPassword">
-            </div>
-            <div class="form-group">
-                <label>確認新密碼</label>
-                <input type="password" id="confirmPassword">
-            </div>
-            <p id="passwordError" class="error-message hidden"></p>
-            <div class="button-group">
-                <button onclick="changePassword()">確定</button>
-                <button onclick="closeChangePasswordModal()" id="cancelChange">取消</button>
+                <h1>歷史配送記錄</h1>
+                <div class="date-filter">
+                    <label for="start-date">開始日期:</label>
+                    <input type="date" id="start-date">
+                    <label for="end-date">結束日期:</label>
+                    <input type="date" id="end-date">
+                    <button id="filter-btn" style="width:auto; padding:8px 12px;">搜尋</button>
+                </div>
+                <div class="history-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>配送日期</th><th>配送點</th><th>載具</th><th>商品上車</th><th>商品下車</th><th>空籃上車</th><th>空籃下車</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-data"></tbody>
+                    </table>
+                </div>
+                <p id="history-message"></p>
             </div>
         </div>
     </div>
 
     <script>
         let userData = null;
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLAmNwStgT_vGsvzK3hCx4Ne_lhk-Brb0HKDe4HPs-wVpSTUb_lT15LBhvKpUNo38w/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw95IndT5K4U4o1N28SPdQrJyZTL5rHH21mzsLOz-ANlYWJdN-SmBba3qE7tiS9aww/exec';
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 維持原有事件綁定
             document.getElementById('login-btn').addEventListener('click', handleLogin);
             document.getElementById('submit-btn').addEventListener('click', handleSubmit);
             document.getElementById('reset-btn').addEventListener('click', resetForm);
@@ -122,70 +149,141 @@
             document.getElementById('tab-form').addEventListener('click', () => switchTab('form'));
             document.getElementById('tab-history').addEventListener('click', () => switchTab('history'));
             document.getElementById('filter-btn').addEventListener('click', loadHistoryData);
+
             const today = new Date();
-            document.getElementById('end-date').value = today.toISOString().split('T')[0];
+            const formatted = today.toISOString().split('T')[0];
+            document.getElementById('end-date').value = formatted;
             const lastWeek = new Date(); lastWeek.setDate(today.getDate() - 7);
             document.getElementById('start-date').value = lastWeek.toISOString().split('T')[0];
-            document.getElementById('logoutButton').addEventListener('click', logoutUser);
+
+            document.getElementById('logout').addEventListener('click', handleLogout);
+            document.getElementById('reset-password').addEventListener('click', handleResetPassword);
         });
 
-        // 切換下拉菜單
-        function logoutUser() {
-            const existing = document.querySelector('.logout-dropdown');
-            if (existing) { existing.remove(); return; }
-            const dropdown = document.createElement('div'); dropdown.className = 'logout-dropdown';
-            const changeOpt = document.createElement('div'); changeOpt.className = 'dropdown-option'; changeOpt.textContent = '更改密碼';
-            changeOpt.onclick = () => { showChangePasswordModal(); dropdown.remove(); };
-            const logoutOpt = document.createElement('div'); logoutOpt.className = 'dropdown-option logout-opt'; logoutOpt.textContent = '登出系統';
-            logoutOpt.onclick = () => { dropdown.remove(); performLogout(); };
-            dropdown.append(changeOpt, logoutOpt);
-            document.body.appendChild(dropdown);
-            setTimeout(() => document.addEventListener('click', function docClick(e) {
-                if (!dropdown.contains(e.target) && e.target.id !== 'logoutButton') {
-                    dropdown.remove(); document.removeEventListener('click', docClick);
+        async function handleLogin() {
+            const btn = document.getElementById('login-btn');
+            btn.disabled = true; btn.textContent = '登入中...';
+            const errorEl = document.getElementById('login-error'); errorEl.textContent = '';
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            if (!username || !password) { errorEl.textContent = '請輸入帳號和密碼'; btn.disabled = false; btn.textContent = '登入'; return; }
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+                const data = await res.json();
+                if (data.success) {
+                    userData = { name: data.user.name, username };
+                    showDeliveryForm(); loadDropdownData();
+                } else {
+                    errorEl.textContent = '帳號或密碼錯誤';
                 }
-            }), 0);
+            } catch (e) {
+                errorEl.textContent = '登入失敗，請稍後再試'; console.error(e);
+            } finally {
+                btn.disabled = false; btn.textContent = '登入';
+            }
         }
 
-        function performLogout() {
+        function showDeliveryForm() {
+            document.getElementById('login-container').classList.add('hidden');
+            document.getElementById('delivery-container').classList.remove('hidden');
+            document.getElementById('welcome-message').textContent = `歡迎：${userData.name}`;
+        }
+
+        async function handleSubmit() {
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true; btn.textContent = '提交中...';
+            const inputs = ['product-load','product-unload','empty-load','empty-unload'];
+            for (let id of inputs) {
+                const val = document.getElementById(id).value.trim();
+                if (!/^[0-9]+$/.test(val)) {
+                    showSubmitError('數量欄位請輸入非負整數'); btn.disabled=false; btn.textContent='送出'; return;
+                }
+            }
+            const location = document.getElementById('delivery-location').value.trim();
+            const vehicle  = document.getElementById('vehicle-type').value.trim();
+            if (!location || !vehicle) { showSubmitError('請填寫配送點和載具簡稱'); btn.disabled=false; btn.textContent='送出'; return; }
+            const formData = {
+                action: 'submitData', driverName: userData.name,
+                deliveryLocation: location, vehicleType: vehicle,
+                productLoad: document.getElementById('product-load').value||'0',
+                productUnload: document.getElementById('product-unload').value||'0',
+                emptyLoad: document.getElementById('empty-load').value||'0',
+                emptyUnload: document.getElementById('empty-unload').value||'0'
+            };
+            const msgEl = document.getElementById('submit-message'); msgEl.textContent='';
+            try {
+                const res = await fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify(formData) });
+                const data = await res.json();
+                if (data.success) { msgEl.className='message'; msgEl.textContent='資料已成功送出！'; resetForm(); }
+                else { showSubmitError(`提交失敗：${data.message}`); }
+            } catch(e) { showSubmitError('提交失敗，請稍後再試'); console.error(e); }
+            finally { btn.disabled=false; btn.textContent='送出'; }
+        }
+        function showSubmitError(text) { const el=document.getElementById('submit-message'); el.className='error-message'; el.textContent=text; }
+
+        function setupNumericInputs() { ['product-load','product-unload','empty-load','empty-unload'].forEach(id=>{
+            const inp=document.getElementById(id);
+            inp.addEventListener('focus',()=>inp.setAttribute('inputmode','numeric'));
+        }); }
+
+        function resetForm() {
+            ['delivery-location','vehicle-type','product-load','product-unload','empty-load','empty-unload']
+            .forEach(id=>document.getElementById(id).value='');
+            document.getElementById('submit-message').textContent='';
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-tabs button').forEach(b=>b.classList.remove('active'));
+            document.querySelectorAll('.tab-content > div').forEach(d=>d.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.getElementById(`${tab}-content`).classList.add('active');
+            if (tab==='history') loadHistoryData();
+        }
+
+        async function loadHistoryData() {
+            const btn = document.getElementById('filter-btn'); btn.disabled=true; btn.textContent='搜尋中...';
+            const start = document.getElementById('start-date').value;
+            const end   = document.getElementById('end-date').value;
+            const msgEl = document.getElementById('history-message'); msgEl.textContent='';
+            const tbody = document.getElementById('history-data'); tbody.innerHTML='';
+            if (!start||!end) { msgEl.textContent='請選擇開始和結束日期'; btn.disabled=false; btn.textContent='搜尋'; return; }
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getHistoryData&driverName=${encodeURIComponent(userData.name)}&startDate=${start}&endDate=${end}`);
+                const data = await res.json();
+                if (data.success) {
+                    if (!data.records.length) msgEl.textContent='所選時間範圍內無配送記錄';
+                    else {
+                        msgEl.textContent=`共找到 ${data.records.length} 筆記錄`;
+                        data.records.forEach(r=>{
+                            const tr=document.createElement('tr');
+                            ['date','location','vehicle','productLoad','productUnload','emptyLoad','emptyUnload']
+                            .forEach(key=>{ const td=document.createElement('td'); td.textContent=r[[ 'date','location','vehicle','productLoad','productUnload','emptyLoad','emptyUnload' ][['date','location','vehicle','productLoad','productUnload','emptyLoad','emptyUnload'].indexOf(key)]]; tr.appendChild(td); });
+                            tbody.appendChild(tr);
+                        });
+                    }
+                } else msgEl.textContent=`載入失敗：${data.message}`;
+            } catch(e) { msgEl.textContent='載入歷史記錄失敗，請稍後再試'; console.error(e); }
+            finally { btn.disabled=false; btn.textContent='搜尋'; }
+        }
+
+        function handleLogout() {
+            userData=null;
             document.getElementById('delivery-container').classList.add('hidden');
             document.getElementById('login-container').classList.remove('hidden');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('login-error').textContent = '';
-            userData = null;
+            ['username','password'].forEach(id=>document.getElementById(id).value='');
+            document.getElementById('login-error').textContent='';
         }
 
-        function showChangePasswordModal() {
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-            document.getElementById('passwordError').classList.add('hidden');
-            document.getElementById('changePasswordModal').style.display = 'flex';
+        async function handleResetPassword() {
+            const current = prompt('請輸入當前密碼'); if (!current) return;
+            const neu     = prompt('請輸入新密碼'); if (!neu) return;
+            try {
+                const payload = { action:'resetPassword', username:userData.username, currentPassword: current, newPassword: neu };
+                const res = await fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify(payload) });
+                const data = await res.json();
+                alert(data.success ? '密碼已成功更新' : `重設失敗：${data.message}`);
+            } catch(e) { alert('重設密碼失敗，請稍後再試'); console.error(e); }
         }
-        function closeChangePasswordModal() {
-            document.getElementById('changePasswordModal').style.display = 'none';
-        }
-
-        function changePassword() {
-            const cur = document.getElementById('currentPassword').value;
-            const neu = document.getElementById('newPassword').value;
-            const conf = document.getElementById('confirmPassword').value;
-            const err = document.getElementById('passwordError');
-            if (!cur||!neu||!conf) { err.textContent='請填寫所有欄位'; err.classList.remove('hidden'); return; }
-            if (neu !== conf) { err.textContent='新密碼與確認密碼不符'; err.classList.remove('hidden'); return; }
-            fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify({ action:'resetPassword', username:userData.username, currentPassword:cur, newPassword:neu }) })
-            .then(r=>r.json())
-            .then(data=>{
-                if (data.success) {
-                    alert('密碼更改成功！請重新登入。'); closeChangePasswordModal(); performLogout();
-                } else {
-                    err.textContent = data.message || '密碼更改失敗'; err.classList.remove('hidden');
-                }
-            }).catch(e=>{ console.error(e); err.textContent='更改密碼時發生錯誤，請稍後再試'; err.classList.remove('hidden'); });
-        }
-
-        // 其餘函式 (handleLogin, handleSubmit, etc.) 保持不變
     </script>
 </body>
 </html>
