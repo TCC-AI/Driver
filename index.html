@@ -326,292 +326,351 @@
         </div>
     </div>
 
-    <script>
-        // 全域變數
-        let userData = null;
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwRgV9IkdcOKZ-pv4Bdglf4GWhKGDEH6wuo4iA4Jtwd6bOlMl5BLCmHSj5z-6Jktxsg/exec';
+<script>
+    // 全域變數
+    let userData = null;
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbww7iswbGsWzG4gglpSsNCUo1kpDPef_JJ39EeN0A56FMb3s3cG4Vhez6s_KIvriZcM/exec';
 
-        // 頁面載入完成後執行
-        document.addEventListener('DOMContentLoaded', () => {
-            // 登入按鈕事件
-            document.getElementById('login-btn').addEventListener('click', handleLogin);
-            
-            // 送出按鈕事件
-            document.getElementById('submit-btn').addEventListener('click', handleSubmit);
-            
-            // 重置按鈕事件
-            document.getElementById('reset-btn').addEventListener('click', resetForm);
-            
-            // 登出下拉選單事件
-            document.getElementById('logout-btn').addEventListener('click', toggleLogoutDropdown);
-            
-            // 點擊其他地方關閉下拉選單
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.dropdown-container')) {
-                    hideLogoutDropdown();
-                }
-            });
-            
-            // 數字輸入框設定
-            setupNumericInputs();
+    // 頁面載入完成後執行
+    document.addEventListener('DOMContentLoaded', () => {
+        // 登入按鈕事件
+        document.getElementById('login-btn').addEventListener('click', handleLogin);
+        
+        // Enter 鍵登入
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
         });
-
-        // 處理登入
-        async function handleLogin() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const errorElement = document.getElementById('login-error');
-            
-            if (!username || !password) {
-                errorElement.textContent = '請輸入帳號和密碼';
-                return;
+        
+        // 送出按鈕事件
+        document.getElementById('submit-btn').addEventListener('click', handleSubmit);
+        
+        // 重置按鈕事件
+        document.getElementById('reset-btn').addEventListener('click', resetForm);
+        
+        // 登出下拉選單事件 - 只在登入後才綁定
+        // 這裡先不綁定，等登入成功後再綁定
+        
+        // 點擊其他地方關閉下拉選單
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown-container')) {
+                hideLogoutDropdown();
             }
+        });
+        
+        // 數字輸入框設定
+        setupNumericInputs();
+        
+        // 確保重設密碼彈窗初始狀態是隱藏的
+        document.getElementById('reset-password-container').classList.add('hidden');
+    });
+
+    // 處理登入
+    async function handleLogin() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const errorElement = document.getElementById('login-error');
+        
+        if (!username || !password) {
+            errorElement.textContent = '請輸入帳號和密碼';
+            return;
+        }
+        
+        errorElement.textContent = '登入中...';
+        
+        try {
+            const response = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+            const data = await response.json();
             
-            errorElement.textContent = '登入中...';
-            
-            try {
-                const response = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    userData = data.user;
-                    showDeliveryForm();
-                    loadDropdownData();
-                } else {
-                    errorElement.textContent = '帳號或密碼錯誤';
-                }
-            } catch (error) {
-                console.error('登入錯誤:', error);
-                errorElement.textContent = '登入失敗，請稍後再試';
+            if (data.success) {
+                userData = data.user;
+                showDeliveryForm();
+                loadDropdownData();
+                // 登入成功後才綁定登出按鈕事件
+                bindLogoutEvents();
+            } else {
+                errorElement.textContent = '帳號或密碼錯誤';
             }
+        } catch (error) {
+            console.error('登入錯誤:', error);
+            errorElement.textContent = '登入失敗，請稍後再試';
         }
+    }
 
-        // 顯示配送表單
-        function showDeliveryForm() {
-            document.getElementById('login-container').classList.add('hidden');
-            document.getElementById('delivery-container').classList.remove('hidden');
-            document.getElementById('welcome-message').textContent = `歡迎：${userData.name}`;
+    // 綁定登出相關事件 - 只在登入後執行
+    function bindLogoutEvents() {
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            // 移除可能存在的舊事件監聽器
+            logoutBtn.removeEventListener('click', toggleLogoutDropdown);
+            // 添加新的事件監聽器
+            logoutBtn.addEventListener('click', toggleLogoutDropdown);
         }
+    }
 
-        // 載入下拉選單資料
-        async function loadDropdownData() {
-            try {
-                const response = await fetch(`${SCRIPT_URL}?action=getDropdownData`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    populateDropdown('delivery-locations', data.locations);
-                    populateDropdown('vehicle-types', data.vehicles);
-                } else {
-                    console.error('載入下拉選單資料失敗:', data.message);
-                }
-            } catch (error) {
-                console.error('載入下拉選單錯誤:', error);
-            }
-        }
+    // 顯示配送表單
+    function showDeliveryForm() {
+        document.getElementById('login-container').classList.add('hidden');
+        document.getElementById('delivery-container').classList.remove('hidden');
+        document.getElementById('welcome-message').textContent = `歡迎：${userData.name}`;
+    }
 
-        // 填充下拉選單
-        function populateDropdown(listId, options) {
-            const datalist = document.getElementById(listId);
-            datalist.innerHTML = '';
+    // 載入下拉選單資料
+    async function loadDropdownData() {
+        try {
+            const response = await fetch(`${SCRIPT_URL}?action=getDropdownData`);
+            const data = await response.json();
             
-            options.forEach(option => {
-                const optionElement = document.createElement('option');
-                optionElement.value = option;
-                datalist.appendChild(optionElement);
+            if (data.success) {
+                populateDropdown('delivery-locations', data.locations);
+                populateDropdown('vehicle-types', data.vehicles);
+            } else {
+                console.error('載入下拉選單資料失敗:', data.message);
+            }
+        } catch (error) {
+            console.error('載入下拉選單錯誤:', error);
+        }
+    }
+
+    // 填充下拉選單
+    function populateDropdown(listId, options) {
+        const datalist = document.getElementById(listId);
+        datalist.innerHTML = '';
+        
+        options.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option;
+            datalist.appendChild(optionElement);
+        });
+    }
+
+    // 設定數字輸入框
+    function setupNumericInputs() {
+        const numericInputs = [
+            'product-load',
+            'product-unload',
+            'empty-load',
+            'empty-unload'
+        ];
+        
+        numericInputs.forEach(id => {
+            const input = document.getElementById(id);
+            input.addEventListener('focus', () => {
+                input.setAttribute('inputmode', 'numeric');
             });
+        });
+    }
+
+    // 處理表單提交
+    async function handleSubmit() {
+        // 檢查是否已登入
+        if (!userData) {
+            alert('請先登入');
+            return;
         }
 
-        // 設定數字輸入框
-        function setupNumericInputs() {
-            const numericInputs = [
-                'product-load',
-                'product-unload',
-                'empty-load',
-                'empty-unload'
-            ];
-            
-            numericInputs.forEach(id => {
-                const input = document.getElementById(id);
-                input.addEventListener('focus', () => {
-                    input.setAttribute('inputmode', 'numeric');
-                });
+        const deliveryLocation = document.getElementById('delivery-location').value.trim();
+        const vehicleType = document.getElementById('vehicle-type').value.trim();
+        const productLoad = document.getElementById('product-load').value.trim();
+        const productUnload = document.getElementById('product-unload').value.trim();
+        const emptyLoad = document.getElementById('empty-load').value.trim();
+        const emptyUnload = document.getElementById('empty-unload').value.trim();
+        
+        const messageElement = document.getElementById('submit-message');
+        
+        // 驗證必填欄位
+        if (!deliveryLocation || !vehicleType) {
+            messageElement.textContent = '請填寫配送點和載具簡稱';
+            messageElement.className = 'error-message';
+            return;
+        }
+        
+        // 準備提交資料
+        const formData = {
+            action: 'submitData',
+            driverName: userData.name,
+            deliveryLocation,
+            vehicleType,
+            productLoad: productLoad || '0',
+            productUnload: productUnload || '0',
+            emptyLoad: emptyLoad || '0',
+            emptyUnload: emptyUnload || '0'
+        };
+        
+        messageElement.textContent = '資料提交中...';
+        
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(formData)
             });
-        }
-
-        // 處理表單提交
-        async function handleSubmit() {
-            const deliveryLocation = document.getElementById('delivery-location').value.trim();
-            const vehicleType = document.getElementById('vehicle-type').value.trim();
-            const productLoad = document.getElementById('product-load').value.trim();
-            const productUnload = document.getElementById('product-unload').value.trim();
-            const emptyLoad = document.getElementById('empty-load').value.trim();
-            const emptyUnload = document.getElementById('empty-unload').value.trim();
             
-            const messageElement = document.getElementById('submit-message');
+            const data = await response.json();
             
-            // 驗證必填欄位
-            if (!deliveryLocation || !vehicleType) {
-                messageElement.textContent = '請填寫配送點和載具簡稱';
-                messageElement.className = 'error-message';
-                return;
-            }
-            
-            // 準備提交資料
-            const formData = {
-                action: 'submitData',
-                driverName: userData.name,
-                deliveryLocation,
-                vehicleType,
-                productLoad: productLoad || '0',
-                productUnload: productUnload || '0',
-                emptyLoad: emptyLoad || '0',
-                emptyUnload: emptyUnload || '0'
-            };
-            
-            messageElement.textContent = '資料提交中...';
-            
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(formData)
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    messageElement.textContent = '資料已成功送出！';
-                    messageElement.className = 'message';
-                    resetForm();
-                } else {
-                    messageElement.textContent = `提交失敗：${data.message}`;
-                    messageElement.className = 'error-message';
-                }
-            } catch (error) {
-                console.error('提交錯誤:', error);
-                messageElement.textContent = '提交失敗，請稍後再試';
-                messageElement.className = 'error-message';
-            }
-        }
-
-        // 重置表單
-        function resetForm() {
-            document.getElementById('delivery-location').value = '';
-            document.getElementById('vehicle-type').value = '';
-            document.getElementById('product-load').value = '';
-            document.getElementById('product-unload').value = '';
-            document.getElementById('empty-load').value = '';
-            document.getElementById('empty-unload').value = '';
-            document.getElementById('submit-message').textContent = '';
-        }
-
-        // 切換登出下拉選單
-        function toggleLogoutDropdown() {
-            const dropdown = document.getElementById('logout-dropdown');
-            dropdown.classList.toggle('hidden');
-        }
-
-        // 隱藏登出下拉選單
-        function hideLogoutDropdown() {
-            document.getElementById('logout-dropdown').classList.add('hidden');
-        }
-
-        // 顯示重設密碼彈窗
-        function showResetPassword() {
-            hideLogoutDropdown();
-            document.getElementById('reset-password-container').classList.remove('hidden');
-        }
-
-        // 隱藏重設密碼彈窗
-        function hideResetPassword() {
-            document.getElementById('reset-password-container').classList.add('hidden');
-            // 清空表單
-            document.getElementById('current-password').value = '';
-            document.getElementById('new-password').value = '';
-            document.getElementById('confirm-password').value = '';
-            document.getElementById('reset-message').textContent = '';
-        }
-
-        // 處理密碼重設
-        async function handlePasswordReset() {
-            const currentPassword = document.getElementById('current-password').value.trim();
-            const newPassword = document.getElementById('new-password').value.trim();
-            const confirmPassword = document.getElementById('confirm-password').value.trim();
-            const messageElement = document.getElementById('reset-message');
-            
-            // 驗證輸入
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                messageElement.textContent = '請填寫所有欄位';
-                messageElement.className = 'error-message';
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                messageElement.textContent = '新密碼與確認密碼不符';
-                messageElement.className = 'error-message';
-                return;
-            }
-            
-            if (newPassword.length < 6) {
-                messageElement.textContent = '新密碼至少需要6個字元';
-                messageElement.className = 'error-message';
-                return;
-            }
-            
-            messageElement.textContent = '密碼重設中...';
-            messageElement.className = 'message';
-            
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'resetPassword',
-                        username: userData.username,
-                        currentPassword: currentPassword,
-                        newPassword: newPassword
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    messageElement.textContent = '密碼重設成功！';
-                    messageElement.className = 'message';
-                    setTimeout(() => {
-                        hideResetPassword();
-                    }, 2000);
-                } else {
-                    messageElement.textContent = `重設失敗：${data.message}`;
-                    messageElement.className = 'error-message';
-                }
-            } catch (error) {
-                console.error('密碼重設錯誤:', error);
-                messageElement.textContent = '重設失敗，請稍後再試';
-                messageElement.className = 'error-message';
-            }
-        }
-
-        // 處理登出
-        function handleLogout() {
-            hideLogoutDropdown();
-            
-            if (confirm('確定要登出嗎？')) {
-                // 清空用戶資料
-                userData = null;
-                
-                // 清空所有表單
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
+            if (data.success) {
+                messageElement.textContent = '資料已成功送出！';
+                messageElement.className = 'message';
                 resetForm();
-                
-                // 隱藏配送表單，顯示登入表單
-                document.getElementById('delivery-container').classList.add('hidden');
-                document.getElementById('login-container').classList.remove('hidden');
-                
-                // 清空錯誤訊息
-                document.getElementById('login-error').textContent = '';
+            } else {
+                messageElement.textContent = `提交失敗：${data.message}`;
+                messageElement.className = 'error-message';
             }
+        } catch (error) {
+            console.error('提交錯誤:', error);
+            messageElement.textContent = '提交失敗，請稍後再試';
+            messageElement.className = 'error-message';
         }
-    </script>
+    }
+
+    // 重置表單
+    function resetForm() {
+        document.getElementById('delivery-location').value = '';
+        document.getElementById('vehicle-type').value = '';
+        document.getElementById('product-load').value = '';
+        document.getElementById('product-unload').value = '';
+        document.getElementById('empty-load').value = '';
+        document.getElementById('empty-unload').value = '';
+        document.getElementById('submit-message').textContent = '';
+    }
+
+    // 切換登出下拉選單
+    function toggleLogoutDropdown() {
+        // 檢查是否已登入
+        if (!userData) {
+            return;
+        }
+        
+        const dropdown = document.getElementById('logout-dropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    // 隱藏登出下拉選單
+    function hideLogoutDropdown() {
+        const dropdown = document.getElementById('logout-dropdown');
+        if (dropdown) {
+            dropdown.classList.add('hidden');
+        }
+    }
+
+    // 顯示重設密碼彈窗
+    function showResetPassword() {
+        // 檢查是否已登入
+        if (!userData) {
+            alert('請先登入');
+            return;
+        }
+        
+        hideLogoutDropdown();
+        document.getElementById('reset-password-container').classList.remove('hidden');
+    }
+
+    // 隱藏重設密碼彈窗
+    function hideResetPassword() {
+        document.getElementById('reset-password-container').classList.add('hidden');
+        // 清空表單
+        document.getElementById('current-password').value = '';
+        document.getElementById('new-password').value = '';
+        document.getElementById('confirm-password').value = '';
+        document.getElementById('reset-message').textContent = '';
+    }
+
+    // 處理密碼重設
+    async function handlePasswordReset() {
+        // 檢查是否已登入
+        if (!userData) {
+            alert('請先登入');
+            hideResetPassword();
+            return;
+        }
+
+        const currentPassword = document.getElementById('current-password').value.trim();
+        const newPassword = document.getElementById('new-password').value.trim();
+        const confirmPassword = document.getElementById('confirm-password').value.trim();
+        const messageElement = document.getElementById('reset-message');
+        
+        // 驗證輸入
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            messageElement.textContent = '請填寫所有欄位';
+            messageElement.className = 'error-message';
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            messageElement.textContent = '新密碼與確認密碼不符';
+            messageElement.className = 'error-message';
+            return;
+        }
+        
+        if (newPassword.length < 6) {
+            messageElement.textContent = '新密碼至少需要6個字元';
+            messageElement.className = 'error-message';
+            return;
+        }
+        
+        messageElement.textContent = '密碼重設中...';
+        messageElement.className = 'message';
+        
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'resetPassword',
+                    username: userData.username,
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                messageElement.textContent = '密碼重設成功！';
+                messageElement.className = 'message';
+                setTimeout(() => {
+                    hideResetPassword();
+                }, 2000);
+            } else {
+                messageElement.textContent = `重設失敗：${data.message}`;
+                messageElement.className = 'error-message';
+            }
+        } catch (error) {
+            console.error('密碼重設錯誤:', error);
+            messageElement.textContent = '重設失敗，請稍後再試';
+            messageElement.className = 'error-message';
+        }
+    }
+
+    // 處理登出
+    function handleLogout() {
+        // 檢查是否已登入
+        if (!userData) {
+            return;
+        }
+        
+        hideLogoutDropdown();
+        
+        if (confirm('確定要登出嗎？')) {
+            // 清空用戶資料
+            userData = null;
+            
+            // 清空所有表單
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            resetForm();
+            
+            // 隱藏配送表單，顯示登入表單
+            document.getElementById('delivery-container').classList.add('hidden');
+            document.getElementById('login-container').classList.remove('hidden');
+            
+            // 清空錯誤訊息
+            document.getElementById('login-error').textContent = '';
+            
+            // 確保重設密碼彈窗是隱藏的
+            hideResetPassword();
+        }
+    }
+</script>
+
 </body>
 </html>
