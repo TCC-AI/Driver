@@ -204,6 +204,58 @@
             font-style: italic;
             color: #777;
         }
+        
+        /* 登出按鈕樣式 */
+        .header-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-btn {
+            background-color: #4a90e2;
+            color: white;
+            padding: 8px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: auto;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #f9f9f9;
+            min-width: 120px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+        }
+        
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -222,7 +274,16 @@
     </div>
 
     <div id="delivery-container" class="container hidden">
-        <div id="welcome-message"></div>
+        <div class="header-actions">
+            <div id="welcome-message"></div>
+            <div class="dropdown">
+                <button class="dropdown-btn">登出</button>
+                <div class="dropdown-content">
+                    <a href="#" id="reset-password">重設密碼</a>
+                    <a href="#" id="logout">登出</a>
+                </div>
+            </div>
+        </div>
         
         <div class="nav-tabs">
             <button id="tab-form" class="active">配送登錄</button>
@@ -311,7 +372,7 @@
     <script>
         // 全域變數
         let userData = null;
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiCIIdLrFa-4VePHKDSQyhNpRFPIUjPtr58B_JUHSiZeyi_HAdFfRFFkYMCq8DPOU/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyeCqK3XDhZkqCEgfnK8CkioQSVtSQoW1WmvPGXLTH99XbtGi6nkRW-UPUYnhqavWQB/exec';
 
         // 頁面載入完成後執行
         document.addEventListener('DOMContentLoaded', () => {
@@ -343,6 +404,12 @@
             const lastWeek = new Date();
             lastWeek.setDate(today.getDate() - 7);
             document.getElementById('start-date').value = lastWeek.toISOString().split('T')[0];
+            
+            // 登出按鈕事件
+            document.getElementById('logout').addEventListener('click', handleLogout);
+            
+            // 重設密碼按鈕事件
+            document.getElementById('reset-password').addEventListener('click', handleResetPassword);
         });
 
         // 處理登入
@@ -373,6 +440,26 @@
                 console.error('登入錯誤:', error);
                 errorElement.textContent = '登入失敗，請稍後再試';
             }
+        }
+        
+        // 處理登出
+        function handleLogout() {
+            // 清除用戶資料
+            userData = null;
+            
+            // 顯示登入頁面
+            document.getElementById('delivery-container').classList.add('hidden');
+            document.getElementById('login-container').classList.remove('hidden');
+            
+            // 清空登入表單
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('login-error').textContent = '';
+        }
+        
+        // 處理重設密碼
+        function handleResetPassword() {
+            alert('重設密碼功能尚未實作');
         }
 
         // 顯示配送表單
