@@ -204,112 +204,6 @@
             font-style: italic;
             color: #777;
         }
-        
-        /* 登出按鈕樣式 */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: #f9f9f9;
-            min-width: 120px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-            border-radius: 5px;
-        }
-        
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            text-align: left;
-            font-size: 14px;
-        }
-        
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-            border-radius: 5px;
-        }
-        
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        
-        .logout-btn {
-            background-color: #f0f0f0;
-            color: #333;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 8px 12px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: auto;
-            display: flex;
-            align-items: center;
-        }
-        
-        .logout-btn:hover {
-            background-color: #e0e0e0;
-        }
-        
-        .logout-btn::after {
-            content: "▼";
-            font-size: 10px;
-            margin-left: 5px;
-        }
-        
-        /* 密碼重設表單樣式 */
-        #password-reset-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .password-reset-form {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        
-        .password-reset-form h2 {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .password-reset-form .button-group {
-            margin-top: 20px;
-        }
-        
-        .close-btn {
-            background-color: #999;
-        }
-        
-        .close-btn:hover {
-            background-color: #777;
-        }
     </style>
 </head>
 <body>
@@ -328,16 +222,7 @@
     </div>
 
     <div id="delivery-container" class="container hidden">
-        <div class="header">
-            <div id="welcome-message"></div>
-            <div class="dropdown">
-                <button class="logout-btn">登出</button>
-                <div class="dropdown-content">
-                    <a href="#" id="reset-password-btn">重設密碼</a>
-                    <a href="#" id="logout-btn">登出</a>
-                </div>
-            </div>
-        </div>
+        <div id="welcome-message"></div>
         
         <div class="nav-tabs">
             <button id="tab-form" class="active">配送登錄</button>
@@ -422,35 +307,11 @@
             </div>
         </div>
     </div>
-    
-    <!-- 密碼重設表單 -->
-    <div id="password-reset-container" class="hidden">
-        <div class="password-reset-form">
-            <h2>重設密碼</h2>
-            <div class="form-group">
-                <label for="current-password">目前密碼</label>
-                <input type="password" id="current-password" placeholder="請輸入目前密碼">
-            </div>
-            <div class="form-group">
-                <label for="new-password">新密碼</label>
-                <input type="password" id="new-password" placeholder="請輸入新密碼">
-            </div>
-            <div class="form-group">
-                <label for="confirm-password">確認新密碼</label>
-                <input type="password" id="confirm-password" placeholder="請再次輸入新密碼">
-            </div>
-            <p id="password-reset-message" class="error-message"></p>
-            <div class="button-group">
-                <button id="confirm-reset-btn">確認</button>
-                <button id="cancel-reset-btn" class="close-btn">取消</button>
-            </div>
-        </div>
-    </div>
 
     <script>
         // 全域變數
         let userData = null;
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSSqqpvgqGrS0qOCJ7AEs_LIepGCwRX2_XSW2LKuVBrZ9j5wCkoMdCugx0nKafE0fP/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiCIIdLrFa-4VePHKDSQyhNpRFPIUjPtr58B_JUHSiZeyi_HAdFfRFFkYMCq8DPOU/exec';
 
         // 頁面載入完成後執行
         document.addEventListener('DOMContentLoaded', () => {
@@ -482,14 +343,6 @@
             const lastWeek = new Date();
             lastWeek.setDate(today.getDate() - 7);
             document.getElementById('start-date').value = lastWeek.toISOString().split('T')[0];
-            
-            // 登出按鈕事件
-            document.getElementById('logout-btn').addEventListener('click', handleLogout);
-            
-            // 重設密碼按鈕事件
-            document.getElementById('reset-password-btn').addEventListener('click', showPasswordResetForm);
-            document.getElementById('confirm-reset-btn').addEventListener('click', handlePasswordReset);
-            document.getElementById('cancel-reset-btn').addEventListener('click', hidePasswordResetForm);
         });
 
         // 處理登入
@@ -734,79 +587,6 @@
             } catch (error) {
                 console.error('載入歷史記錄錯誤:', error);
                 historyMessage.textContent = '載入歷史記錄失敗，請稍後再試';
-            }
-        }
-        
-        // 處理登出
-        function handleLogout() {
-            userData = null;
-            document.getElementById('delivery-container').classList.add('hidden');
-            document.getElementById('login-container').classList.remove('hidden');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('login-error').textContent = '';
-        }
-        
-        // 顯示密碼重設表單
-        function showPasswordResetForm() {
-            document.getElementById('password-reset-container').classList.remove('hidden');
-            document.getElementById('current-password').value = '';
-            document.getElementById('new-password').value = '';
-            document.getElementById('confirm-password').value = '';
-            document.getElementById('password-reset-message').textContent = '';
-        }
-        
-        // 隱藏密碼重設表單
-        function hidePasswordResetForm() {
-            document.getElementById('password-reset-container').classList.add('hidden');
-        }
-        
-        // 處理密碼重設
-        async function handlePasswordReset() {
-            const currentPassword = document.getElementById('current-password').value.trim();
-            const newPassword = document.getElementById('new-password').value.trim();
-            const confirmPassword = document.getElementById('confirm-password').value.trim();
-            const messageElement = document.getElementById('password-reset-message');
-            
-            // 驗證輸入
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                messageElement.textContent = '請填寫所有密碼欄位';
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                messageElement.textContent = '新密碼與確認密碼不符';
-                return;
-            }
-            
-            if (newPassword.length < 6) {
-                messageElement.textContent = '新密碼長度至少需要6個字元';
-                return;
-            }
-            
-            messageElement.textContent = '處理中...';
-            
-            try {
-                const response = await fetch(`${SCRIPT_URL}?action=resetPassword&username=${encodeURIComponent(userData.username)}&currentPassword=${encodeURIComponent(currentPassword)}&newPassword=${encodeURIComponent(newPassword)}`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    messageElement.textContent = '密碼已成功重設！請使用新密碼登入';
-                    messageElement.className = 'message';
-                    
-                    // 3秒後關閉表單並登出
-                    setTimeout(() => {
-                        hidePasswordResetForm();
-                        handleLogout();
-                    }, 3000);
-                } else {
-                    messageElement.textContent = data.message || '密碼重設失敗';
-                    messageElement.className = 'error-message';
-                }
-            } catch (error) {
-                console.error('密碼重設錯誤:', error);
-                messageElement.textContent = '密碼重設失敗，請稍後再試';
-                messageElement.className = 'error-message';
             }
         }
     </script>
