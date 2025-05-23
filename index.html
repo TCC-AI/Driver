@@ -190,7 +190,7 @@
     <script>
         // 全域變數
         let userData = null;
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVQUxgIXIklY1YD1pJF_khhfwlEGc_gIuCU4ZV7A1eN9jzU1OgKGTFzDPX9hzppFSs/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxtdu4UbwceJutquWSU63yvCnHdRY6kwoa0Hn5j1-JEdnd4SU6azNyT7erf6hEtLaDM/exec';
 
         // 頁面載入完成後執行
         document.addEventListener('DOMContentLoaded', () => {
@@ -207,35 +207,54 @@
             setupNumericInputs();
         });
 
-        // 處理登入
-        async function handleLogin() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const errorElement = document.getElementById('login-error');
-            
-            if (!username || !password) {
-                errorElement.textContent = '請輸入帳號和密碼';
-                return;
-            }
-            
-            errorElement.textContent = '登入中...';
-            
-            try {
-                const response = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    userData = data.user;
-                    showDeliveryForm();
-                    loadDropdownData();
-                } else {
-                    errorElement.textContent = '帳號或密碼錯誤';
-                }
-            } catch (error) {
-                console.error('登入錯誤:', error);
-                errorElement.textContent = '登入失敗，請稍後再試';
-            }
+// 修正登入函數
+async function handleLogin() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const errorElement = document.getElementById('login-error');
+    
+    if (!username || !password) {
+        errorElement.textContent = '請輸入帳號和密碼';
+        return;
+    }
+    
+    errorElement.textContent = '登入中...';
+    
+    try {
+        // 使用 POST 方法發送登入請求
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'login',
+                username: username,
+                password: password
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
+        const data = await response.json();
+        console.log('登入回應:', data);
+        
+        if (data.success) {
+            userData = data.user;
+            showDeliveryForm();
+            loadDropdownData();
+            errorElement.textContent = '';
+        } else {
+            errorElement.textContent = data.message || '登入失敗';
+        }
+    } catch (error) {
+        console.error('登入錯誤:', error);
+        errorElement.textContent = '登入失敗，請檢查網路連線或稍後再試';
+    }
+}
+
 
         // 顯示配送表單
         function showDeliveryForm() {
