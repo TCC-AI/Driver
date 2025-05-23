@@ -5,370 +5,683 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>配送資訊登錄系統</title>
     <style>
-        /* 原始樣式完全保留 */
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: "微軟正黑體", sans-serif;
+            box-sizing: border-box;
         }
 
         body {
-            background-color: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .container {
-            background-color: white;
+            background: white;
+            padding: 2rem;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             width: 100%;
             max-width: 500px;
         }
 
+        .page {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
         h1 {
-            color: #333;
             text-align: center;
-            margin-bottom: 30px;
+            color: #333;
+            margin-bottom: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        #welcomeMessage {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .logout-container {
+            position: relative;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .logout-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            min-width: 120px;
+        }
+
+        .menu-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:hover {
+            background: #f8f9fa;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
+            position: relative;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 0.5rem;
+            color: #333;
             font-weight: bold;
-            color: #555;
         }
 
-        input {
+        input[type="text"], input[type="password"], input[type="number"] {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ddd;
+            border: 2px solid #ddd;
             border-radius: 5px;
             font-size: 16px;
+            transition: border-color 0.3s;
         }
 
-        input:focus {
+        input[type="text"]:focus, input[type="password"]:focus, input[type="number"]:focus {
             outline: none;
-            border-color: #4a90e2;
-            box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+            border-color: #667eea;
         }
 
-        button {
-            background-color: #4a90e2;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 12px 20px;
-            font-size: 16px;
+        /* 數字輸入框在手機上顯示數字鍵盤 */
+        input[type="number"] {
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .dropdown-container {
+            position: relative;
+        }
+
+        .dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .dropdown-item {
+            padding: 10px 12px;
             cursor: pointer;
-            transition: background-color 0.3s;
-            width: 100%;
+            border-bottom: 1px solid #eee;
         }
 
-        button:hover {
-            background-color: #3a7bc8;
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: #f8f9fa;
         }
 
         .button-group {
             display: flex;
-            gap: 15px;
+            gap: 1rem;
+            margin-top: 2rem;
         }
 
-        .button-group button {
+        button {
             flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-        #reset-btn {
-            background-color: #e74c3c;
+        button[type="submit"], .submit-btn {
+            background: #28a745;
+            color: white;
         }
 
-        #reset-btn:hover {
-            background-color: #c0392b;
+        button[type="submit"]:hover, .submit-btn:hover {
+            background: #218838;
         }
 
-        .error-message {
-            color: #e74c3c;
-            margin-top: 15px;
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+        }
+
+        .error {
+            color: #dc3545;
             text-align: center;
+            margin-top: 1rem;
         }
 
         .message {
-            color: #2ecc71;
-            margin-top: 15px;
             text-align: center;
+            margin-top: 1rem;
+            padding: 10px;
+            border-radius: 5px;
         }
 
-        .hidden {
-            display: none;
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
-        #welcome-message {
-            text-align: right;
-            color: #4a90e2;
-            font-weight: bold;
-            margin-bottom: 10px;
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
-
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+        @media (max-width: 600px) {
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- 原始HTML結構完全保留 -->
-    <div id="login-container" class="container">
-        <h1>配送資訊登錄系統</h1>
-        <div class="form-group">
-            <label for="username">帳號</label>
-            <input type="text" id="username" placeholder="請輸入帳號">
+    <!-- 登入頁面 -->
+    <div id="loginPage" class="page">
+        <div class="container">
+            <h1>司機登入系統</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">帳號：</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">密碼：</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit">登入</button>
+            </form>
+            <div id="loginError" class="error"></div>
         </div>
-        <div class="form-group">
-            <label for="password">密碼</label>
-            <input type="password" id="password" placeholder="請輸入密碼">
-        </div>
-        <button id="login-btn">登入</button>
-        <p id="login-error" class="error-message"></p>
     </div>
 
-    <div id="delivery-container" class="container hidden">
-        <div id="welcome-message"></div>
-        <h1>配送資訊登錄</h1>
-        
-        <div class="form-group">
-            <label for="delivery-location">配送點簡稱</label>
-            <input type="text" id="delivery-location" list="delivery-locations" placeholder="請選擇或輸入關鍵字搜尋">
-            <datalist id="delivery-locations"></datalist>
+    <!-- 配送資訊登錄頁面 -->
+    <div id="mainPage" class="page hidden">
+        <div class="container">
+            <div class="header">
+                <div id="welcomeMessage"></div>
+                <div class="logout-container">
+                    <button id="logoutBtn" class="logout-btn">登出 ▼</button>
+                    <div id="logoutMenu" class="logout-menu hidden">
+                        <div class="menu-item" onclick="resetPassword()">重設密碼</div>
+                        <div class="menu-item" onclick="logout()">登出</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h1>配送資訊登錄</h1>
+            
+            <form id="deliveryForm">
+                <div class="form-group">
+                    <label for="deliveryPoint">配送點簡稱：</label>
+                    <div class="dropdown-container">
+                        <input type="text" id="deliveryPoint" placeholder="請選擇或輸入關鍵字搜尋" required>
+                        <div id="deliveryPointList" class="dropdown-list"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="vehicle">載具簡稱：</label>
+                    <div class="dropdown-container">
+                        <input type="text" id="vehicle" placeholder="請選擇或輸入關鍵字搜尋" required>
+                        <div id="vehicleList" class="dropdown-list"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="goodsOn">【商品載具/棧板】上車載具：</label>
+                    <input type="number" id="goodsOn" min="0" inputmode="numeric" pattern="[0-9]*" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="goodsOff">【商品載具/棧板】下車載具：</label>
+                    <input type="number" id="goodsOff" min="0" inputmode="numeric" pattern="[0-9]*" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="emptyOn">【空籃/空桶】上車載具：</label>
+                    <input type="number" id="emptyOn" min="0" inputmode="numeric" pattern="[0-9]*" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="emptyOff">【空籃/空桶】下車載具：</label>
+                    <input type="number" id="emptyOff" min="0" inputmode="numeric" pattern="[0-9]*" required>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="submit-btn">送出</button>
+                    <button type="button" id="resetBtn" class="reset-btn">重置</button>
+                </div>
+            </form>
+            
+            <div id="message" class="message"></div>
         </div>
-        
-        <div class="form-group">
-            <label for="vehicle-type">載具簡稱</label>
-            <input type="text" id="vehicle-type" list="vehicle-types" placeholder="請選擇或輸入關鍵字搜尋">
-            <datalist id="vehicle-types"></datalist>
+    </div>
+
+    <!-- 重設密碼頁面 -->
+    <div id="resetPasswordPage" class="page hidden">
+        <div class="container">
+            <h1>重設密碼</h1>
+            <form id="resetPasswordForm">
+                <div class="form-group">
+                    <label for="newPassword">新密碼：</label>
+                    <input type="password" id="newPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">確認新密碼：</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <div class="button-group">
+                    <button type="submit">確認修改</button>
+                    <button type="button" onclick="showMainPage()">取消</button>
+                </div>
+            </form>
+            <div id="resetMessage" class="message"></div>
         </div>
-        
-        <div class="form-group">
-            <label for="product-load">【商品載具/棧板】上車載具</label>
-            <input type="number" id="product-load" pattern="[0-9]*" inputmode="numeric" placeholder="0">
-        </div>
-        
-        <div class="form-group">
-            <label for="product-unload">【商品載具/棧板】下車載具</label>
-            <input type="number" id="product-unload" pattern="[0-9]*" inputmode="numeric" placeholder="0">
-        </div>
-        
-        <div class="form-group">
-            <label for="empty-load">【空籃/空桶】上車載具</label>
-            <input type="number" id="empty-load" pattern="[0-9]*" inputmode="numeric" placeholder="0">
-        </div>
-        
-        <div class="form-group">
-            <label for="empty-unload">【空籃/空桶】下車載具</label>
-            <input type="number" id="empty-unload" pattern="[0-9]*" inputmode="numeric" placeholder="0">
-        </div>
-        
-        <div class="button-group">
-            <button id="submit-btn">送出</button>
-            <button id="reset-btn">重置</button>
-        </div>
-        
-        <p id="submit-message" class="message"></p>
     </div>
 
     <script>
-        // 全域變數保持不變
-        let userData = null;
-        let isSubmitting = false; // 新增提交狀態鎖
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUcSjxag7NDTSbomYu6mS96PHAWHJ-GNs7g0ODbIoDK-cklgCMSysa-2kfSkv89afa/exec';
+        // Google Apps Script Web App URL
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyMRfkb6CAj9GJTy1dNnfgceIl88EkvJFYHjXh9MhzY67w7qXRzpDC6qwoOqo_r6eFy/exec';
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('login-btn').addEventListener('click', handleLogin);
-            document.getElementById('submit-btn').addEventListener('click', handleSubmit);
-            document.getElementById('reset-btn').addEventListener('click', resetForm);
-            setupEnhancedInputs(); // 修改函數名稱
+        let currentUser = null;
+        let deliveryPoints = [];
+        let vehicles = [];
+
+        // 頁面載入時初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
         });
 
-        // 強化版登入處理
-        async function handleLogin() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const errorElement = document.getElementById('login-error');
-            
-            if (!username || !password) {
-                showError(errorElement, '請輸入帳號和密碼');
-                return;
-            }
-            
-            showLoading(errorElement, '登入中...');
-            
+        async function initializeApp() {
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        action: 'login',
-                        username: username,
-                        password: password
-                    })
-                });
-                
-                if (!response.ok) throw new Error(`HTTP錯誤! 狀態碼: ${response.status}`);
-                
-                const data = await response.json();
-                if (data.success) {
-                    userData = data.user;
-                    showDeliveryForm();
-                    loadDropdownData();
-                    clearMessage(errorElement);
-                } else {
-                    showError(errorElement, data.message || '登入失敗');
-                }
+                // 載入下拉選單資料
+                await loadDropdownData();
+                setupEventListeners();
             } catch (error) {
-                console.error('登入錯誤:', error);
-                showError(errorElement, '登入失敗，請檢查網路連線');
+                console.error('初始化失敗:', error);
+                showMessage('系統初始化失敗，請重新整理頁面', 'error');
             }
         }
 
-        // 強化輸入控制
-        function setupEnhancedInputs() {
-            const numberInputs = [
-                'product-load', 'product-unload',
-                'empty-load', 'empty-unload'
-            ];
+        function setupEventListeners() {
+            // 登入表單
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
             
-            numberInputs.forEach(id => {
-                const input = document.getElementById(id);
-                input.addEventListener('input', function(e) {
-                    this.value = this.value.replace(/[^0-9]/g, '');
-                    if (this.value.length > 4) this.value = this.value.slice(0,4);
-                });
+            // 配送表單
+            document.getElementById('deliveryForm').addEventListener('submit', handleDeliverySubmit);
+            
+            // 重置按鈕
+            document.getElementById('resetBtn').addEventListener('click', resetForm);
+            
+            // 登出按鈕
+            document.getElementById('logoutBtn').addEventListener('click', toggleLogoutMenu);
+            
+            // 重設密碼表單
+            document.getElementById('resetPasswordForm').addEventListener('submit', handlePasswordReset);
+            
+            // 下拉選單設置
+            setupDropdown('deliveryPoint', 'deliveryPointList', deliveryPoints);
+            setupDropdown('vehicle', 'vehicleList', vehicles);
+            
+            // 點擊其他地方關閉下拉選單
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.dropdown-container')) {
+                    hideAllDropdowns();
+                }
+                if (!e.target.closest('.logout-container')) {
+                    hideLogoutMenu();
+                }
             });
-        }
-
-        // 強化版表單提交
-        async function handleSubmit() {
-            if (isSubmitting) return;
-            isSubmitting = true;
-            
-            const formElements = {
-                deliveryLocation: document.getElementById('delivery-location').value.trim(),
-                vehicleType: document.getElementById('vehicle-type').value.trim(),
-                productLoad: document.getElementById('product-load').value.trim() || '0',
-                productUnload: document.getElementById('product-unload').value.trim() || '0',
-                emptyLoad: document.getElementById('empty-load').value.trim() || '0',
-                emptyUnload: document.getElementById('empty-unload').value.trim() || '0'
-            };
-            
-            const messageElement = document.getElementById('submit-message');
-            
-            if (!formElements.deliveryLocation || !formElements.vehicleType) {
-                showError(messageElement, '請填寫配送點和載具簡稱');
-                isSubmitting = false;
-                return;
-            }
-            
-            showLoading(messageElement, '資料提交中...');
-            
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        action: 'submitData',
-                        driverName: userData.name,
-                        ...formData
-                    })
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    showSuccess(messageElement, '資料已成功送出！');
-                    resetForm();
-                } else {
-                    showError(messageElement, `提交失敗：${data.message}`);
-                }
-            } catch (error) {
-                console.error('提交錯誤:', error);
-                showError(messageElement, '提交失敗，請稍後再試');
-            } finally {
-                isSubmitting = false;
-            }
-        }
-
-        // 新增工具函數
-        function showError(element, message) {
-            element.textContent = message;
-            element.className = 'error-message';
-            element.style.display = 'block';
-        }
-
-        function showSuccess(element, message) {
-            element.textContent = message;
-            element.className = 'message';
-            element.style.display = 'block';
-        }
-
-        function showLoading(element, message) {
-            element.textContent = message;
-            element.className = 'message';
-            element.style.display = 'block';
-        }
-
-        function clearMessage(element) {
-            element.textContent = '';
-            element.className = '';
-            element.style.display = 'none';
-        }
-
-        // 保留原始功能函數
-        function showDeliveryForm() {
-            document.getElementById('login-container').classList.add('hidden');
-            document.getElementById('delivery-container').classList.remove('hidden');
-            document.getElementById('welcome-message').textContent = `歡迎：${userData.name}`;
         }
 
         async function loadDropdownData() {
             try {
-                const response = await fetch(`${SCRIPT_URL}?action=getDropdownData`);
+                const response = await fetch(`${GAS_URL}?action=getDropdownData`);
                 const data = await response.json();
+                
                 if (data.success) {
-                    populateDropdown('delivery-locations', data.locations);
-                    populateDropdown('vehicle-types', data.vehicles);
+                    deliveryPoints = data.deliveryPoints;
+                    vehicles = data.vehicles;
+                } else {
+                    throw new Error(data.error || '載入下拉選單資料失敗');
                 }
             } catch (error) {
-                console.error('載入下拉選單錯誤:', error);
+                console.error('載入下拉選單資料失敗:', error);
+                throw error;
             }
         }
 
-        function populateDropdown(listId, options) {
-            const datalist = document.getElementById(listId);
-            datalist.innerHTML = options.map(option => 
-                `<option value="${option}">${option}</option>`
-            ).join('');
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!username || !password) {
+                showLoginError('請輸入帳號和密碼');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${GAS_URL}?action=login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentUser = data.user;
+                    showMainPage();
+                } else {
+                    showLoginError(data.error || '登入失敗');
+                }
+            } catch (error) {
+                console.error('登入錯誤:', error);
+                showLoginError('連線錯誤，請稍後再試');
+            }
+        }
+
+        async function handleDeliverySubmit(e) {
+            e.preventDefault();
+            
+            const formData = {
+                driverName: currentUser.name,
+                deliveryPoint: document.getElementById('deliveryPoint').value.trim(),
+                vehicle: document.getElementById('vehicle').value.trim(),
+                goodsOn: parseInt(document.getElementById('goodsOn').value) || 0,
+                goodsOff: parseInt(document.getElementById('goodsOff').value) || 0,
+                emptyOn: parseInt(document.getElementById('emptyOn').value) || 0,
+                emptyOff: parseInt(document.getElementById('emptyOff').value) || 0
+            };
+            
+            // 驗證所有欄位都有填寫
+            if (!formData.deliveryPoint || !formData.vehicle) {
+                showMessage('請完整填寫所有欄位', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${GAS_URL}?action=submitDelivery`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('配送資訊已成功提交！', 'success');
+                    resetForm();
+                } else {
+                    showMessage(data.error || '提交失敗', 'error');
+                }
+            } catch (error) {
+                console.error('提交錯誤:', error);
+                showMessage('連線錯誤，請稍後再試', 'error');
+            }
+        }
+
+        async function handlePasswordReset(e) {
+            e.preventDefault();
+            
+            const newPassword = document.getElementById('newPassword').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+            
+            if (newPassword !== confirmPassword) {
+                showResetMessage('兩次輸入的密碼不一致', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 4) {
+                showResetMessage('密碼長度至少需要4個字元', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${GAS_URL}?action=resetPassword`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        username: currentUser.username, 
+                        newPassword: newPassword 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResetMessage('密碼修改成功！', 'success');
+                    setTimeout(() => {
+                        showMainPage();
+                    }, 2000);
+                } else {
+                    showResetMessage(data.error || '密碼修改失敗', 'error');
+                }
+            } catch (error) {
+                console.error('密碼重設錯誤:', error);
+                showResetMessage('連線錯誤，請稍後再試', 'error');
+            }
+        }
+
+        function setupDropdown(inputId, listId, dataArray) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            
+            input.addEventListener('input', function() {
+                const value = this.value.toLowerCase();
+                const filtered = dataArray.filter(item => 
+                    item.toLowerCase().includes(value)
+                );
+                
+                if (filtered.length > 0 && value) {
+                    showDropdownList(list, filtered, input);
+                } else {
+                    hideDropdownList(list);
+                }
+            });
+            
+            input.addEventListener('focus', function() {
+                if (dataArray.length > 0) {
+                    showDropdownList(list, dataArray, input);
+                }
+            });
+        }
+
+        function showDropdownList(listElement, items, inputElement) {
+            listElement.innerHTML = '';
+            
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'dropdown-item';
+                div.textContent = item;
+                div.addEventListener('click', function() {
+                    inputElement.value = item;
+                    hideDropdownList(listElement);
+                });
+                listElement.appendChild(div);
+            });
+            
+            listElement.style.display = 'block';
+        }
+
+        function hideDropdownList(listElement) {
+            listElement.style.display = 'none';
+        }
+
+        function hideAllDropdowns() {
+            document.querySelectorAll('.dropdown-list').forEach(list => {
+                hideDropdownList(list);
+            });
+        }
+
+        function toggleLogoutMenu() {
+            const menu = document.getElementById('logoutMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function hideLogoutMenu() {
+            document.getElementById('logoutMenu').classList.add('hidden');
+        }
+
+        function resetPassword() {
+            hideLogoutMenu();
+            showResetPasswordPage();
+        }
+
+        function logout() {
+            currentUser = null;
+            resetForm();
+            hideLogoutMenu();
+            showLoginPage();
         }
 
         function resetForm() {
-            document.querySelectorAll('#delivery-container input').forEach(input => {
-                if (input.type !== 'hidden') input.value = '';
-            });
-            const msg = document.getElementById('submit-message');
-            msg.textContent = '';
-            msg.className = '';
-            msg.style.display = 'none';
+            document.getElementById('deliveryForm').reset();
+            hideAllDropdowns();
+            clearMessage();
+        }
+
+        function showLoginPage() {
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('resetPasswordPage').classList.add('hidden');
+            clearLoginError();
+        }
+
+        function showMainPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.remove('hidden');
+            document.getElementById('resetPasswordPage').classList.add('hidden');
+            
+            if (currentUser) {
+                document.getElementById('welcomeMessage').textContent = `歡迎：${currentUser.name}`;
+            }
+            clearMessage();
+        }
+
+        function showResetPasswordPage() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('mainPage').classList.add('hidden');
+            document.getElementById('resetPasswordPage').classList.remove('hidden');
+            document.getElementById('resetPasswordForm').reset();
+            clearResetMessage();
+        }
+
+        function showLoginError(message) {
+            document.getElementById('loginError').textContent = message;
+        }
+
+        function clearLoginError() {
+            document.getElementById('loginError').textContent = '';
+        }
+
+        function showMessage(message, type) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = message;
+            messageElement.className = `message ${type}`;
+        }
+
+        function clearMessage() {
+            document.getElementById('message').textContent = '';
+            document.getElementById('message').className = 'message';
+        }
+
+        function showResetMessage(message, type) {
+            const messageElement = document.getElementById('resetMessage');
+            messageElement.textContent = message;
+            messageElement.className = `message ${type}`;
+        }
+
+        function clearResetMessage() {
+            document.getElementById('resetMessage').textContent = '';
+            document.getElementById('resetMessage').className = 'message';
         }
     </script>
 </body>
