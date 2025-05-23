@@ -325,9 +325,7 @@ async function handleSubmit() {
     try {
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            
             body: JSON.stringify(formData),
             // CORS 設定
             mode: 'cors',
