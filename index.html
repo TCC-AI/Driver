@@ -204,6 +204,52 @@
             font-style: italic;
             color: #777;
         }
+        /* 添加到現有 CSS 中 */
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.logout-button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: auto;
+}
+
+.logout-button:hover {
+    background-color: #c0392b;
+}
+
+#welcome-message {
+    text-align: left;
+    color: #4a90e2;
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+/* 響應式設計調整 */
+@media (max-width: 480px) {
+    .header-section {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+    
+    .logout-button {
+        width: 100%;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -222,7 +268,10 @@
     </div>
 
     <div id="delivery-container" class="container hidden">
+        <div class="header-section">
         <div id="welcome-message"></div>
+        <button id="logout-btn" class="logout-button">登出</button>
+    </div>
         
         <div class="nav-tabs">
             <button id="tab-form" class="active">配送登錄</button>
@@ -317,6 +366,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             // 登入按鈕事件
             document.getElementById('login-btn').addEventListener('click', handleLogin);
+
+            // 登出按鈕事件
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
             
             // 送出按鈕事件
             document.getElementById('submit-btn').addEventListener('click', handleSubmit);
@@ -636,6 +688,115 @@ function showNotification(title, message) {
                 historyMessage.textContent = '載入歷史記錄失敗，請稍後再試';
             }
         }
+    // 添加登出處理函數
+function handleLogout() {
+    // 顯示確認對話框
+    if (confirm('確定要登出嗎？')) {
+        // 清除用戶數據
+        userData = null;
+        
+        // 清除表單數據
+        resetForm();
+        clearHistoryData();
+        
+        // 清除登入表單
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('login-error').textContent = '';
+        
+        // 切換回登入頁面
+        showLoginForm();
+        
+        // 顯示登出成功訊息
+        const loginError = document.getElementById('login-error');
+        loginError.textContent = '已成功登出';
+        loginError.className = 'message';
+        
+        // 3秒後清除訊息
+        setTimeout(() => {
+            loginError.textContent = '';
+            loginError.className = 'error-message';
+        }, 3000);
+    }
+}
+
+// 顯示登入表單
+function showLoginForm() {
+    document.getElementById('delivery-container').classList.add('hidden');
+    document.getElementById('login-container').classList.remove('hidden');
+    
+    // 重置標籤狀態
+    switchTab('form');
+}
+
+// 清除歷史記錄數據
+function clearHistoryData() {
+    document.getElementById('history-data').innerHTML = '';
+    document.getElementById('history-message').textContent = '';
+    
+    // 重置日期篩選器
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    document.getElementById('end-date').value = formattedDate;
+    
+    const lastWeek = new Date();
+    lastWeek.setDate(today.getDate() - 7);
+    document.getElementById('start-date').value = lastWeek.toISOString().split('T')[0];
+}
+
+        // 自動登出功能（閒置10分鐘後自動登出）
+let inactivityTimer;
+const INACTIVITY_TIME = 10 * 60 * 1000; // 10分鐘
+
+function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => {
+        alert('由於長時間未操作，系統將自動登出');
+        handleLogout();
+    }, INACTIVITY_TIME);
+}
+
+// 在用戶活動時重置計時器
+document.addEventListener('click', resetInactivityTimer);
+document.addEventListener('keypress', resetInactivityTimer);
+document.addEventListener('scroll', resetInactivityTimer);
+
+// 在登入成功後啟動計時器
+function showDeliveryForm() {
+    document.getElementById('login-container').classList.add('hidden');
+    document.getElementById('delivery-container').classList.remove('hidden');
+    document.getElementById('welcome-message').textContent = `歡迎：${userData.name}`;
+    
+    // 啟動閒置計時器
+    resetInactivityTimer();
+}
+
+// 在登出時清除計時器
+function handleLogout() {
+    if (confirm('確定要登出嗎？')) {
+        // 清除閒置計時器
+        clearTimeout(inactivityTimer);
+        
+        // 其餘登出邏輯...
+        userData = null;
+        resetForm();
+        clearHistoryData();
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('login-error').textContent = '';
+        showLoginForm();
+        
+        const loginError = document.getElementById('login-error');
+        loginError.textContent = '已成功登出';
+        loginError.className = 'message';
+        
+        setTimeout(() => {
+            loginError.textContent = '';
+            loginError.className = 'error-message';
+        }, 3000);
+    }
+}
+
     </script>
 </body>
 </html>
