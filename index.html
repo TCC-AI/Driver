@@ -311,7 +311,7 @@
     <script>
         // 全域變數
         let userData = null;
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiCIIdLrFa-4VePHKDSQyhNpRFPIUjPtr58B_JUHSiZeyi_HAdFfRFFkYMCq8DPOU/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmZPd9uzBgoE4EqwF6s40NxWATZvp0-huNv3ekNJPvIXN0-ED_SbwZNAZmnEryl0dq/exec';
 
         // 頁面載入完成後執行
         document.addEventListener('DOMContentLoaded', () => {
@@ -514,6 +514,53 @@
                 loadHistoryData();
             }
         }
+
+        // 添加載入狀態管理
+function showLoading(element, message = '處理中...') {
+  element.textContent = message;
+  element.style.opacity = '0.7';
+}
+
+function hideLoading(element) {
+  element.style.opacity = '1';
+}
+
+// 添加網路重試機制
+async function fetchWithRetry(url, options, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      return response;
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+    }
+  }
+}
+
+        // 前端表單驗證
+function validateForm() {
+  const deliveryLocation = document.getElementById('delivery-location').value.trim();
+  const vehicleType = document.getElementById('vehicle-type').value.trim();
+  
+  if (!deliveryLocation || deliveryLocation.length < 2) {
+    return { valid: false, message: '配送點簡稱至少需要2個字元' };
+  }
+  
+  if (!vehicleType || vehicleType.length < 2) {
+    return { valid: false, message: '載具簡稱至少需要2個字元' };
+  }
+  
+  return { valid: true };
+}
+
+        // 瀏覽器通知
+function showNotification(title, message) {
+  if (Notification.permission === 'granted') {
+    new Notification(title, { body: message });
+  }
+}
+
         
         // 載入歷史記錄數據
         async function loadHistoryData() {
