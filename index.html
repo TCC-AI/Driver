@@ -21,7 +21,7 @@
                 #0a45f5 75%, 
                 #43cea2 100%);
             background-size: 300% 300%;
-            animation: gradientShift 15s ease infinite;
+            animation: gradientShift 25s ease infinite;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -45,8 +45,8 @@
             position: absolute;
             top: -50%;
             left: -50%;
-            width: 200%;
-            height: 200%;
+            width: 100%;
+            height: 100%;
             background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
             background-size: 50px 50px;
             animation: float 20s linear infinite;
@@ -84,14 +84,14 @@
         }
 
         h1 {
-            background: linear-gradient(135deg, #667eea, #43cea2);
+            background: linear-gradient(135deg, #2121db, #43cea2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-align: center;
-            margin-bottom: 35px;
-            font-size: 28px;
-            font-weight: 700;
+            margin-bottom: 30px;
+            font-size: 36px;
+            font-weight: 900;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
@@ -471,6 +471,18 @@
     .date-input-row input {
         max-width: none;
     }
+    .title-icon {
+  width: 280px;
+  height: auto;
+  display: block;
+  margin: 0 auto 15px auto;
+}
+    h1 {
+
+            font-size: 36px;
+            font-weight: 900;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 }
 
         
@@ -695,7 +707,7 @@
         }
 
         .designer-info {
-  font-size: 14px;
+  font-size: 13px;
   color: #888;
   text-align: center;
   margin-top: 20px;
@@ -771,7 +783,7 @@
             <input type="password" id="password" placeholder="請輸入密碼">
         </div>
         <button id="login-btn">登入</button>
-        <p class="designer-info">Designed by T.C.C 管理本部</p>
+        <p class="designer-info">Designed by T.C.C.管理本部</p>
         <p id="login-error" class="error-message"></p>
     </div>
 
@@ -911,7 +923,7 @@
     <script>
         // 全域變數
         let userData = null;
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3k6fv41Q4rOuDqu2B3hByjK7p_WfNpH1mIg2-U-y65GDRkypk4L18Zx_Y-2vgFkyi/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzm7T8-iFzNN4DhRwfG7EVQcQwo_b7Ok3OjnrTIO9alWDnu30JBj6sHZt4AeXNpkeY/exec';
 
         document.addEventListener('DOMContentLoaded', () => {
             // 登入按鈕事件
